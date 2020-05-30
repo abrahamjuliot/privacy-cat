@@ -22,9 +22,10 @@
             "48": "icon48.png"
         }
     },
-    "homepage_url": "https://github.com/abrahamjuliot/privacy-meow",
+    "homepage_url": "https://github.com/abrahamjuliot/privacy-cat",
     "options_ui": {
-        "page": "index.html",
+        "page": "options.html",
+        "open_in_tab": false,
         "chrome_style": true
     },
     "content_scripts": [

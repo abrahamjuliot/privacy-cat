@@ -6,10 +6,48 @@
 </head>
 
 <body>
+  <style>
+    body {
+      width: 300px;
+    }
 
-  <button id="go-to-options">Go to options</button>
-
-  <script src="options.js"></script>
+    label {
+      display: block;
+    }
+    section {
+      background: #eee;
+      padding: 10px;
+      margin: 10px auto;
+    }
+  </style>
+  <h1>Settings</h1>
+  <section>
+    <h2>Randomize</h2>
+    <span>Randomize device fingerprint</span>
+    <label><input type="checkbox" id="new">new (hash id)</label>
+    <label><input type="checkbox" id="time">time</label>
+    <label><input type="checkbox" id="platform" checked>platform</label>
+    <label><input type="checkbox" id="screen" checked>screen</label>
+    <label><input type="checkbox" id="gpu" checked>gpu</label>
+    <label><input type="checkbox" id="touch" checked>touch</label>
+  </section>
+  <section>
+    <h2>Block</h2>
+    <span>Block APIs (breaks sites)</span>
+    <label><input type="checkbox" id="speech">speech</label>
+    <label><input type="checkbox" id="plugins">plugins</label>
+    <label><input type="checkbox" id="mimetypes">mimetypes</label>
+    <label><input type="checkbox" id="gamepads">gamepads</label>
+    <label><input type="checkbox" id="battery">battery</label>
+    <label><input type="checkbox" id="connection">connection</label>
+    <label><input type="checkbox" id="webrtc">webrtc</label>
+  </section>
+  <section>
+    <h2>Detect</h2>
+    <span>Fingerprinting (convert to options)</span>
+    <label><input type="checkbox" id="alert">alert</label>
+    <label><input type="checkbox" id="notify">notify</label>
+  </section>
 </body>
 
 </html>

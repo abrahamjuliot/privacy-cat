@@ -23,11 +23,6 @@
         }
     },
     "homepage_url": "https://github.com/abrahamjuliot/privacy-cat",
-    "options_ui": {
-        "page": "options.html",
-        "open_in_tab": false,
-        "chrome_style": true
-    },
     "content_scripts": [
         {
             "all_frames": true,

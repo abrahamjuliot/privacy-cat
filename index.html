@@ -11,7 +11,7 @@
       width: 300px;
     }
 
-    label {
+    strong, label {
       display: block;
     }
     section {
@@ -20,19 +20,18 @@
       margin: 10px auto;
     }
   </style>
-  <h1>Settings</h1>
   <section>
-    <h2>Randomize</h2>
+    <strong>Randomize</strong>
     <span>Randomize device fingerprint</span>
-    <label><input type="checkbox" id="new">new (hash id)</label>
-    <label><input type="checkbox" id="time">time</label>
+    <label><input type="button" id="randomize" value="randomize"></label>
+    <label><input id="number" type="number" id="time" value="1" placeholder="1 through 60" step="5" min="1" max="60">Randomize</label>
     <label><input type="checkbox" id="platform" checked>platform</label>
     <label><input type="checkbox" id="screen" checked>screen</label>
     <label><input type="checkbox" id="gpu" checked>gpu</label>
     <label><input type="checkbox" id="touch" checked>touch</label>
   </section>
   <section>
-    <h2>Block</h2>
+    <strong>Block</strong>
     <span>Block APIs (breaks sites)</span>
     <label><input type="checkbox" id="speech">speech</label>
     <label><input type="checkbox" id="plugins">plugins</label>
@@ -43,11 +42,12 @@
     <label><input type="checkbox" id="webrtc">webrtc</label>
   </section>
   <section>
-    <h2>Detect</h2>
+    <strong>Detect</strong>
     <span>Fingerprinting (convert to options)</span>
     <label><input type="checkbox" id="alert">alert</label>
     <label><input type="checkbox" id="notify">notify</label>
   </section>
+  <script src="settings.js"></script>
 </body>
 
 </html>

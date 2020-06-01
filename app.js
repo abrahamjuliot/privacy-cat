@@ -1,5 +1,4 @@
-chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
-
+const listenOnMessage = (data, sender, sendResponse) => {
     console.log(data)
     const message = data
     const propsRead = data.propsRead || [] 
@@ -7,11 +6,28 @@ chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
     if (len) {
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             const tabId = tabs[0].id
+            // only update if tabs url match the message url?
             chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 128], tabId })
             chrome.browserAction.setBadgeText({ text: `${len}`, tabId })
         })
     }
-})
+}
+
+
+chrome.runtime.onMessage.addListener(listenOnMessage)
+
+// count all frame prop reads
+// do not count on current page on background load
+// do count on background loads tab
+
+// chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+//     if (changeInfo.status == 'loading') {
+//         chrome.runtime.onMessage.addListener(listenOnMessage)
+//     }
+//     if (changeInfo.status == 'complete') {
+//         chrome.runtime.onMessage.removeListener(listenOnMessage)
+//     }
+// })
 
 const struct = {
     navProps: {},

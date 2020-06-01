@@ -1,4 +1,20 @@
 (function () {
+    window.addEventListener('message', function (event) {
+        // Restrict messages to same frame
+        
+        if (event.source !== window) { return }
+
+        const message = event.data
+        const { src } = message
+        // Restrict messages type and source
+        if (typeof message !== 'object'
+        || message === null
+        || src !== 'ondicjclhhjndhdkpagjhhfdjbpokfhe') { return }
+        
+        chrome.runtime.sendMessage(message)
+        return
+    })
+
     function injectScript(code) {
         const scriptEl = document.createElement('script')
         const head = document.head
@@ -41,6 +57,10 @@
                 }
             }
             // Detect Fingerprinting
+            const post = (obj) => {
+                obj.src = 'ondicjclhhjndhdkpagjhhfdjbpokfhe'
+                window.postMessage(obj, '*')
+            }
             const propAPI = {
                 appVersion: ['navigator.appVersion', 2],
                 deviceMemory: ['navigator.deviceMemory', 1],
@@ -131,7 +151,11 @@
                 propsReadAll[propDescription] ? propsReadAll[propDescription]++ : propsReadAll[propDescription] = 1
 
                 // if new property is read, increase the rank counter and add it to collection of props read 
-                if (newPropRead) { rankCounter += fpRank; propsRead.push(propDescription) }
+                if (newPropRead) {
+                    rankCounter += fpRank
+                    propsRead.push(propDescription)
+                    post({ propsRead })
+                }
 
                 // Detect excessive prop reads and warn
                 const excessivePropReadsDetected = rankCounter >= warningRank
@@ -152,10 +176,12 @@
                     const fingerprintingDetected = tracedScript.fpRank >= warningRank
                     const alreadyCaught = tracedScript.creep
                     if (!alreadyCaught && fingerprintingDetected) {
+                        
                         const warning = 'Fingerprinting detected!'
                         const messageFromMars = (Math.random() + 1).toString(36).substring(2, 8)
                         const message = tracedScript.reads
                         tracedScript.creep = true // caught!
+                        post({ warning })
                         console.warn(warning, url, tracedScript.all)
                         if (!confirm(message)) { throw new ReferenceError(messageFromMars) }
                     }
@@ -262,9 +288,30 @@
                 return redefinedProps
             }
             function redefine(root) {
+                // Randomized
                 Object.defineProperties(root.navigator, definify(navProps))
                 Object.defineProperties(root.screen, definify(screenProps))
                 Object.defineProperties(root.WebGLRenderingContext.prototype, definify(webglProps))
+                // Static
+                Object.defineProperties(root.navigator, definify(staticNavProps))
+                Object.defineProperties(root.Date.prototype, definify(dateProps))
+                Object.defineProperties(root.Intl.DateTimeFormat.prototype, definify(intlProps))
+                Object.defineProperties(root.Math, definify(mathProps))
+                Object.defineProperties(root.navigator.mediaDevices, definify(mediaDeviceProps))
+                Object.defineProperties(root.HTMLVideoElement.prototype, definify(videoElementProps))
+                Object.defineProperties(root.HTMLMediaElement.prototype, definify(mediaElementProps))
+                Object.defineProperties(root.MediaSource, definify(mediaSourceProps))
+                Object.defineProperties(root.MediaRecorder, definify(mediaRecorderProps))
+                Object.defineProperties(root.speechSynthesis, definify(speechProps))
+                Object.defineProperties(root.performance, definify(performanceProps))
+                Object.defineProperties(root.Element.prototype, definify(elemRectProps))
+                Object.defineProperties(root.Range.prototype, definify(rangeRectProps))
+                Object.defineProperties(root.WebGLRenderingContext.prototype, definify(staticWebglProps))
+                Object.defineProperties(root.HTMLCanvasElement.prototype, definify(canvasProps))
+                Object.defineProperties(root.CanvasRenderingContext2D.prototype, definify(canvasContextProps))
+                Object.defineProperties(root.AudioContext.prototype, definify(audioProps))
+                Object.defineProperties(root.AudioBuffer.prototype, definify(audioBufferProps))
+                Object.defineProperties(root.RTCPeerConnection.prototype, definify(webRTCProps))
             }
             redefine(window)
         })()

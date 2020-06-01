@@ -1,3 +1,18 @@
+chrome.runtime.onMessage.addListener((data, sender, sendResponse) => {
+
+    console.log(data)
+    const message = data
+    const propsRead = data.propsRead || [] 
+    const len = propsRead.length
+    if (len) {
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            const tabId = tabs[0].id
+            chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 128], tabId })
+            chrome.browserAction.setBadgeText({ text: `${len}`, tabId })
+        })
+    }
+})
+
 const struct = {
     navProps: {},
     screenProps: {},
@@ -11,7 +26,7 @@ const randomize = () => {
         (Math.floor(Math.random() * ((max / 2) - min + 1)) + min) * 2
     const rand = (min, max) =>
         (Math.floor(Math.random() * (max - min + 1)) + min)
-    
+
     // Chrome User Agent/Platform
     const mozilla = 'Mozilla/'
     const apple = 'AppleWebKit/537.36'
@@ -50,24 +65,24 @@ const randomize = () => {
     struct.navProps.platform = agentPlatform
     struct.navProps.appVersion = `5.0 (${agent}) ${apple} ${gecko} Chrome/${listRand(version)} ${safari}`
     struct.navProps.userAgent = `${mozilla}${struct.navProps.appVersion}`
-    
+
     // Device Touch, Hardware, and Memory
     function canLieTouch() {
         const userAgent = struct.navProps.userAgent
         const os = (
             /windows phone/ig.test(userAgent) ? 'Windows Phone' :
-            /win(dows|16|32|64|95|98|nt)|wow64/ig.test(userAgent) ? 'Windows' :
-            /android/ig.test(userAgent) ? 'Android' :
-            /linux/ig.test(userAgent) ? 'Linux' :
-            /ios/ig.test(userAgent) ? 'iOS' :
-            /mac/ig.test(userAgent) ? 'Mac' :
-            /cros/ig.test(userAgent) ? 'CrOS' :
-            'Other'
+                /win(dows|16|32|64|95|98|nt)|wow64/ig.test(userAgent) ? 'Windows' :
+                    /android/ig.test(userAgent) ? 'Android' :
+                        /linux/ig.test(userAgent) ? 'Linux' :
+                            /ios/ig.test(userAgent) ? 'iOS' :
+                                /mac/ig.test(userAgent) ? 'Mac' :
+                                    /cros/ig.test(userAgent) ? 'CrOS' :
+                                        'Other'
         )
         const touchOS = (/^(Windows(|\sPhone)|CrOS|Android|iOS)$/ig.test(os))
         return touchOS
     }
-    struct.navProps.maxTouchPoints = canLieTouch() ? rand(1, 10): navigator.maxTouchPoints
+    struct.navProps.maxTouchPoints = canLieTouch() ? rand(1, 10) : navigator.maxTouchPoints
     struct.navProps.hardwareConcurrency = rand(1, 16)
     struct.navProps.deviceMemory = evenRand(2, 32)
 
@@ -131,7 +146,7 @@ const randomize = () => {
                 '675MX',
                 '680'
             ]
-        }     
+        }
         ]
         const renderers = [{
             gpu: 'NVIDIA GeForce RTX',
@@ -179,9 +194,9 @@ const randomize = () => {
         }
         ]
         const randomRenderer = (
-            struct.navProps.platform == 'MacIntel'?
-            listRand(macRenderers): 
-            listRand(renderers)
+            struct.navProps.platform == 'MacIntel' ?
+                listRand(macRenderers) :
+                listRand(renderers)
         )
         const randomGpu = randomRenderer.gpu
         const randomModel = listRand(randomRenderer.model)

@@ -1,21 +1,3 @@
-// const listenOnMessage = (data, sender, sendResponse) => {
-//     console.log(data)
-//     const message = data
-//     const fingerprintScripts = data.fingerprintScripts || []
-//     const len = fingerprintScripts.length
-//     if (len) {
-//         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-//             const { id: tabId } = tabs[0]
-//             console.log(fingerprintScripts)
-//             chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 128], tabId })
-//             chrome.browserAction.setBadgeText({ text: `${len}`, tabId })
-//         })
-//     } 
-// }
-
-
-// chrome.runtime.onMessage.addListener(listenOnMessage)
-
 const listenOnMessage = (data, sender, sendResponse) => {
     const { tab: { id: senderTabId } } = sender
     const fingerprintScripts = data.fingerprintScripts || []

@@ -11,7 +11,9 @@
         || message === null
         || src !== 'ondicjclhhjndhdkpagjhhfdjbpokfhe') { return }
         
-        chrome.runtime.sendMessage(message)
+        if (chrome.runtime != undefined) {
+            return chrome.runtime.sendMessage(message)
+        }
         return
     })
 
@@ -139,6 +141,7 @@
             const warningRank = 12
             const propsRead = []
             const propsReadAll = {}
+            const fingerprintScripts = []
             const scripts = []
             const watch = (prop) => {
                 const url = getCurrentScript()
@@ -154,7 +157,7 @@
                 if (newPropRead) {
                     rankCounter += fpRank
                     propsRead.push(propDescription)
-                    post({ propsRead })
+                    //post({ propsRead })
                 }
 
                 // Detect excessive prop reads and warn
@@ -176,14 +179,14 @@
                     const fingerprintingDetected = tracedScript.fpRank >= warningRank
                     const alreadyCaught = tracedScript.creep
                     if (!alreadyCaught && fingerprintingDetected) {
-                        
                         const warning = 'Fingerprinting detected!'
                         const messageFromMars = (Math.random() + 1).toString(36).substring(2, 8)
                         const message = tracedScript.reads
                         tracedScript.creep = true // caught!
-                        post({ warning })
+                        fingerprintScripts.push(url)
+                        post({ fingerprintScripts })
                         console.warn(warning, url, tracedScript.all)
-                        if (!confirm(message)) { throw new ReferenceError(messageFromMars) }
+                        //if (!confirm(message)) { throw new ReferenceError(messageFromMars) }
                     }
                 }
                 else { tracedScript.all[propDescription]++ }

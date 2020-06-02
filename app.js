@@ -1,33 +1,46 @@
+// const listenOnMessage = (data, sender, sendResponse) => {
+//     console.log(data)
+//     const message = data
+//     const fingerprintScripts = data.fingerprintScripts || []
+//     const len = fingerprintScripts.length
+//     if (len) {
+//         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+//             const { id: tabId } = tabs[0]
+//             console.log(fingerprintScripts)
+//             chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 128], tabId })
+//             chrome.browserAction.setBadgeText({ text: `${len}`, tabId })
+//         })
+//     } 
+// }
+
+
+// chrome.runtime.onMessage.addListener(listenOnMessage)
+
 const listenOnMessage = (data, sender, sendResponse) => {
-    console.log(data)
-    const message = data
-    const propsRead = data.propsRead || [] 
-    const len = propsRead.length
+    const { tab: { id: senderTabId } } = sender
+    const fingerprintScripts = data.fingerprintScripts || []
+    const len = fingerprintScripts.length
     if (len) {
-        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-            const tabId = tabs[0].id
-            // only update if tabs url match the message url?
-            chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 128], tabId })
-            chrome.browserAction.setBadgeText({ text: `${len}`, tabId })
+        chrome.tabs.get(senderTabId, tab => {
+            if (chrome.runtime.lastError) { return }
+            const { id: tabId } = tab
+            const visibleTab = tab.index >= 0
+            if (visibleTab) {
+                chrome.browserAction.setBadgeText({ text: `${len}`, tabId })
+            } 
+            else { // prerendered tab, invisible yet, happens quite rarely
+                chrome.webNavigation.onCommitted.addListener(function update(details) {
+                    if (details.tabId == senderTabId) {
+                        chrome.browserAction.setBadgeText({ text: `${len}`, tabId: senderTabId })
+                        chrome.webNavigation.onCommitted.removeListener(update)
+                    }
+                })
+            }
         })
     }
 }
 
-
 chrome.runtime.onMessage.addListener(listenOnMessage)
-
-// count all frame prop reads
-// do not count on current page on background load
-// do count on background loads tab
-
-// chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-//     if (changeInfo.status == 'loading') {
-//         chrome.runtime.onMessage.addListener(listenOnMessage)
-//     }
-//     if (changeInfo.status == 'complete') {
-//         chrome.runtime.onMessage.removeListener(listenOnMessage)
-//     }
-// })
 
 const struct = {
     navProps: {},

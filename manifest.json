@@ -7,6 +7,7 @@
     "permissions": [
         "storage",
         "<all_urls>",
+        "webNavigation",
         "webRequest",
         "webRequestBlocking"
     ],

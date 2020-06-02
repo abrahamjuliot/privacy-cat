@@ -11,7 +11,7 @@
         || message === null
         || src !== 'ondicjclhhjndhdkpagjhhfdjbpokfhe') { return }
         
-        if (chrome.runtime != undefined) {
+        if (!chrome.runtime.lastError) {
             return chrome.runtime.sendMessage(message)
         }
         return

@@ -11,9 +11,11 @@
       width: 300px;
     }
 
-    strong, label {
+    strong,
+    label {
       display: block;
     }
+
     section {
       background: #eee;
       padding: 10px;
@@ -24,7 +26,13 @@
     <strong>Randomize</strong>
     <span>Randomize device fingerprint</span>
     <label><input type="button" id="randomize" value="randomize"></label>
-    <label><input id="number" type="number" id="time" value="1" placeholder="1 through 60" step="5" min="1" max="60">Randomize</label>
+    <span>Randomize every x minutes</span>
+    <fieldset id="time">
+      <label for="time1"><input id="time1" type="radio" value="1" name="time">1</label>
+      <label for="time10"><input id="time10" type="radio" value="10" name="time">10</label>
+      <label for="time60"><input id="time60" type="radio" value="60" name="time">60</label>
+      <label for="time480"><input id="time480" type="radio" value="480" name="time">480</label>
+    </fieldset>
     <label><input type="checkbox" id="platform" checked>platform</label>
     <label><input type="checkbox" id="screen" checked>screen</label>
     <label><input type="checkbox" id="gpu" checked>gpu</label>
@@ -42,10 +50,13 @@
     <label><input type="checkbox" id="webrtc">webrtc</label>
   </section>
   <section>
-    <strong>Detect</strong>
-    <span>Fingerprinting (convert to options)</span>
-    <label><input type="checkbox" id="alert">alert</label>
+    <strong>Fingerprinting</strong>
     <label><input type="checkbox" id="notify">notify</label>
+    <strong>Require Permission to Read</strong>
+    <label><input type="checkbox" id="canvas">HTMLCanvasElement.toDataURL</label>
+    <label><input type="checkbox" id="audio">AudioBuffer.getChannelData</label>
+    <label><input type="checkbox" id="rects">getClientRects</label>
+    <label><input type="checkbox" id="rtcpeer">RTCPeerConnection.createDataChannel</label>
   </section>
   <script src="settings.js"></script>
 </body>

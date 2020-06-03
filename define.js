@@ -205,7 +205,6 @@
                         fingerprintScripts.push(url)
                         post({ fingerprintScripts })
                         console.warn(warning, url, tracedScript.all)
-                        // notify on background script
                     }
                 }
                 else { tracedScript.all[propDescription]++ }

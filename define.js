@@ -165,7 +165,7 @@
                         +propDescription
                         +', which can be used to uniquely identify your browser '
                         +'and track your internet activity without your consent. '
-                        +'OK to allow or Cancel to send a random error to the script.'
+                        +'OK to allow or Cancel to abort.'
                     )
                     if (!confirm(permitMessage)) { throw new ReferenceError(randomMessage) }
                     else { permitToRead[prop] = true } // for any reads following

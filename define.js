@@ -143,13 +143,34 @@
             const propsReadAll = {}
             const fingerprintScripts = []
             const scripts = []
+
+            const permitToRead = { // get permit from options
+                toDataURL: false, // HTMLCanvasElement
+                getChannelData: false, // AudioBuffer
+                createDataChannel: false, // RTCPeerConnection
+                getClientRects: false,
+            }
             const watch = (prop) => {
                 const url = getCurrentScript()
                 const propDescription = propAPI[prop][0]
                 const fpRank = propAPI[prop][1]
                 const tracedScript = scripts.filter(s => s.url == url)[0] // previously traced script?
                 const newPropRead = !itemInList(propsRead, propDescription)
-
+                
+                // grant permission if required
+                if (permitToRead[prop] === false) {
+                    const randomMessage = (Math.random() + 1).toString(36).substring(2, 8)
+                    const permitMessage = (
+                        'This site is trying to read '
+                        +propDescription
+                        +', which can be used to uniquely identify your browser '
+                        +'and track your internet activity without your consent. '
+                        +'OK to allow or Cancel to send a random error to the script.'
+                    )
+                    if (!confirm(permitMessage)) { throw new ReferenceError(randomMessage) }
+                    else { permitToRead[prop] = true } // for any reads following
+                }
+                
                 // count how many times each prop is read
                 propsReadAll[propDescription] ? propsReadAll[propDescription]++ : propsReadAll[propDescription] = 1
 
@@ -180,13 +201,11 @@
                     const alreadyCaught = tracedScript.creep
                     if (!alreadyCaught && fingerprintingDetected) {
                         const warning = 'Fingerprinting detected!'
-                        const messageFromMars = (Math.random() + 1).toString(36).substring(2, 8)
-                        const message = tracedScript.reads
                         tracedScript.creep = true // caught!
                         fingerprintScripts.push(url)
                         post({ fingerprintScripts })
                         console.warn(warning, url, tracedScript.all)
-                        //if (!confirm(message)) { throw new ReferenceError(messageFromMars) }
+                        // notify on background script
                     }
                 }
                 else { tracedScript.all[propDescription]++ }

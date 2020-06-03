@@ -164,7 +164,7 @@
                         'This site is trying to read '
                         +propDescription
                         +', which can be used to uniquely identify your browser '
-                        +'and track your internet activity without your consent. '
+                        +'and track your internet activity. '
                         +'OK to allow or Cancel to abort.'
                     )
                     if (!confirm(permitMessage)) { throw new ReferenceError(randomMessage) }

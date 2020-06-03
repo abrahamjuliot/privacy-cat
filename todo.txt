@@ -1,5 +1,5 @@
 - sync settings
-- style like possom/ublock origin style
+- style not like .../ublock origin style
 - add canvas (look into rect and audio)
 - turn off for this domain (google it) - store in sync
 - capture excessive prop reads, fp scripts (change icon color)

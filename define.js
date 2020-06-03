@@ -64,7 +64,7 @@
                 window.postMessage(obj, '*')
             }
             const propAPI = {
-                appVersion: ['navigator.appVersion', 2],
+                appVersion: ['navigator.appVersion', 1],
                 deviceMemory: ['navigator.deviceMemory', 1],
                 doNotTrack: ['navigator.doNotTrack', 1],
                 hardwareConcurrency: ['navigator.hardwareConcurrency', 1],
@@ -73,7 +73,7 @@
                 mimeTypes: ['navigator.mimeTypes', 1],
                 platform: ['navigator.platform', 1],
                 plugins: ['navigator.plugins', 1],
-                userAgent: ['navigator.userAgent', 2],
+                userAgent: ['navigator.userAgent', 1],
                 vendor: ['navigator.vendor', 1],
                 connection: ['navigator.connection', 1],
                 getBattery: ['navigator.getBattery', 1],
@@ -87,7 +87,7 @@
                 colorDepth: ['screen.colorDepth', 1],
                 pixelDepth: ['screen.pixelDepth', 1],
                 getTimezoneOffset: ['Date.prototype.getTimezoneOffset', 1],
-                resolvedOptions: ['Intl.DateTimeFormat.prototype.resolvedOptions', 2],
+                resolvedOptions: ['Intl.DateTimeFormat.prototype.resolvedOptions', 1],
                 acos: ['acos: Math.acos', 1],
                 acosh: ['Math.acosh', 1],
                 asin: ['Math.asin', 1],
@@ -100,28 +100,28 @@
                 isTypeSupported: ['isTypeSupported', 1],
                 getVoices: ['speechSynthesis.getVoices', 1],
                 now: ['performance.now', 1],
-                getBoundingClientRect: ['prototype.getBoundingClientRect', 2],
-                getClientRects: ['prototype.getClientRects', 2],
+                getBoundingClientRect: ['prototype.getBoundingClientRect', 1],
+                getClientRects: ['prototype.getClientRects', 3],
                 offsetWidth: ['HTMLElement.prototype.offsetWidth', 1],
                 offsetHeight: ['HTMLElement.prototype.offsetHeight', 1],
-                shaderSource: ['WebGLRenderingContext.prototype.shaderSource', 6],
-                getExtension: ['WebGLRenderingContext.prototype.getExtension', 2],
-                getParameter: ['WebGLRenderingContext.prototype.getParameter', 2],
+                shaderSource: ['WebGLRenderingContext.prototype.shaderSource', 4],
+                getExtension: ['WebGLRenderingContext.prototype.getExtension', 4],
+                getParameter: ['WebGLRenderingContext.prototype.getParameter', 8],
                 getSupportedExtensions: ['WebGLRenderingContext.prototype.getSupportedExtensions', 4],
-                toDataURL: ['HTMLCanvasElement.prototype.toDataURL', 6],
-                toBlob: ['HTMLCanvasElement.prototype.toBlob', 6],
-                getImageData: ['CanvasRenderingContext2D.prototype.getImageData', 6],
+                toDataURL: ['HTMLCanvasElement.prototype.toDataURL', 8],
+                toBlob: ['HTMLCanvasElement.prototype.toBlob', 4],
+                getImageData: ['CanvasRenderingContext2D.prototpe.getImageData', 8],
                 isPointInPath: ['CanvasRenderingContext2D.prototype.isPointInPath', 1],
                 isPointInStroke: ['CanvasRenderingContext2D.prototype.isPointInStroke', 1],
-                measureText: ['CanvasRenderingContext2D.prototype.measureText', 1],
-                font: ['CanvasRenderingContext2D.prototype.font', 1],
-                createAnalyser: ['AudioContext.prototype.createAnalyser', 6],
-                createOscillator: ['AudioContext.prototype.createOscillator', 6],
-                getChannelData: ['AudioBuffer.prototype.getChannelData', 6],
-                copyFromChannel: ['AudioBuffer.prototype.getChannelData', 6],
-                createDataChannel: ['RTCPeerConnection.prototype.createDataChannel', 6],
-                createOffer: ['RTCPeerConnection.prototype.createOffer', 6],
-                setRemoteDescription: ['RTCPeerConnection.setRemoteDescription', 6]
+                measureText: ['CanvasRenderingContext2D.prototype.measureText', 2],
+                font: ['CanvasRenderingContext2D.prototype.font', 2],
+                createAnalyser: ['AudioContext.prototype.createAnalyser', 4],
+                createOscillator: ['AudioContext.prototype.createOscillator', 4],
+                getChannelData: ['AudioBuffer.prototype.getChannelData', 8],
+                copyFromChannel: ['AudioBuffer.prototype.copyFromChannel', 8],
+                createDataChannel: ['RTCPeerConnection.prototype.createDataChannel', 3],
+                createOffer: ['RTCPeerConnection.prototype.createOffer', 3],
+                setRemoteDescription: ['RTCPeerConnection.setRemoteDescription', 3]
             }
             const getCurrentScript = () => {
                 const jsURL = ${/(\/.+\.js)/gi}
@@ -138,7 +138,7 @@
             const itemInList = (list, item) => list.indexOf(item) > -1
             let listenForExcessivePropReads = true
             let rankCounter = 0
-            const warningRank = 12
+            const warningRank = 14
             const propsRead = []
             const propsReadAll = {}
             const fingerprintScripts = []
@@ -192,95 +192,167 @@
                 else { tracedScript.all[propDescription]++ }
                 return
             }
-            const staticNavProps = {
-                doNotTrack: navigator.doNotTrack,
-                languages: navigator.languages,
-                mimeTypes: navigator.mimeTypes,
-                plugins: navigator.plugins,
-                connection: navigator.connection,
-                getBattery: navigator.getBattery,
-                getGamepads: navigator.getGamepads
-            }
-            const dateProps = {
-                getTimezoneOffset: Date.prototype.getTimezoneOffset
-            }
+
+            
+            // difinify
             const intlProps = {
                 resolvedOptions: Intl.DateTimeFormat.prototype.resolvedOptions
-            }
-            const mathProps = {
-                acos: Math.acos,
-                acosh: Math.acosh,
-                asin: Math.asin,
-                asinh: Math.asinh,
-                cosh: Math.cosh,
-                expm1: Math.expm1,
-                sinh: Math.sinh
             }
             const mediaDeviceProps = {
                 enumerateDevices: navigator.mediaDevices.enumerateDevices
             }
-            const videoElementProps = {
-                canPlayType: HTMLVideoElement.prototype.canPlayType
-            }
-            const mediaElementProps = {
-                canPlayType: HTMLMediaElement.prototype.canPlayType
-            }
-            const mediaSourceProps = {
-                isTypeSupported: MediaSource.isTypeSupported
-            }
-            const mediaRecorderProps = {
-                isTypeSupported: MediaRecorder.isTypeSupported
-            }
-            const speechProps = {
-                getVoices: speechSynthesis.getVoices
-            }
-            const performanceProps = {
-                now: performance.now
-            }
-            const elemRectProps = {
-                getBoundingClientRect: Element.prototype.getBoundingClientRect,
-                getClientRects: Element.prototype.getClientRects
-            }
-            const rangeRectProps = {
-                getBoundingClientRect: Range.prototype.getBoundingClientRect,
-                getClientRects: Range.prototype.getClientRects
-            }
-            const staticWebglProps = {
-                shaderSource: WebGLRenderingContext.prototype.shaderSource,
-                getExtension: WebGLRenderingContext.prototype.getExtension,
-                getSupportedExtensions: WebGLRenderingContext.prototype.getSupportedExtensions
-            }
-            const canvasProps = {
-                toDataURL: HTMLCanvasElement.prototype.toDataURL,
-                toBlob: HTMLCanvasElement.prototype.toBlob
-            }
-            const canvasContextProps = {
-                getImageData: CanvasRenderingContext2D.prototype.getImageData,
-                isPointInPath: CanvasRenderingContext2D.prototype.isPointInPath,
-                isPointInStroke: CanvasRenderingContext2D.prototype.isPointInStroke,
-                measureText: CanvasRenderingContext2D.prototype.measureText,
-            }
-            const audioProps = {
-                createAnalyser: AudioContext.prototype.createAnalyser,
-                createOscillator: AudioContext.prototype.createOscillator,
-            }
-            const audioBufferProps = {
-                getChannelData: AudioBuffer.prototype.getChannelData,
-                copyFromChannel: AudioBuffer.prototype.copyFromChannel
-            }
-            const webRTCProps = {
-                createDataChannel: RTCPeerConnection.prototype.createDataChannel,
-                createOffer: RTCPeerConnection.prototype.createOffer,
-                setRemoteDescription: RTCPeerConnection.setRemoteDescription
-            }
-            // randomized props
-            const navProps = JSON.parse('${JSON.stringify(navProps)}')
-            const screenProps = JSON.parse('${JSON.stringify(screenProps)}')
-            const extension = JSON.parse('${JSON.stringify(extension)}')
-            const webglProps = {
-                getParameter: webgl(extension)
-            }
-            // difinify
+            const apiStructs = [{
+                name: 'navigator',
+                proto: false,
+                struct: {
+                    ...JSON.parse('${JSON.stringify(navProps)}'), // ? randomize
+                    doNotTrack: navigator.doNotTrack,
+                    languages: navigator.languages,
+                    mimeTypes: navigator.mimeTypes, // ? block
+                    plugins: navigator.plugins,     // ? block
+                    connection: navigator.connection,
+                    getBattery: navigator.getBattery, // ? block
+                    getGamepads: navigator.getGamepads // ? block
+                }
+            }, 
+            {
+                name: 'screen',
+                proto: false,
+                struct: JSON.parse('${JSON.stringify(screenProps)}') // ? randomize
+            },
+            {
+                name: 'Date',
+                proto: true,
+                struct: {
+                    getTimezoneOffset: Date.prototype.getTimezoneOffset
+                }
+            },
+            {
+                name: 'Math',
+                proto: false,
+                struct: {
+                    acos: Math.acos,
+                    acosh: Math.acosh,
+                    asin: Math.asin,
+                    asinh: Math.asinh,
+                    cosh: Math.cosh,
+                    expm1: Math.expm1,
+                    sinh: Math.sinh
+                }
+            },
+            {
+                name: 'HTMLVideoElement',
+                proto: true,
+                struct: {
+                    canPlayType: HTMLVideoElement.prototype.canPlayType
+                }
+            },
+            {
+                name: 'HTMLMediaElement',
+                proto: true,
+                struct: {
+                    canPlayType: HTMLMediaElement.prototype.canPlayType
+                }
+            },
+            {
+                name: 'MediaSource',
+                proto: false,
+                struct: {
+                    isTypeSupported: MediaSource.isTypeSupported
+                }
+            },
+            {
+                name: 'MediaRecorder',
+                proto: false,
+                struct: {
+                    isTypeSupported: MediaRecorder.isTypeSupported
+                }
+            },
+            {
+                name: 'speechSynthesis',
+                proto: false,
+                struct: {
+                    getVoices: speechSynthesis.getVoices // ? block
+                }
+            },
+            {
+                name: 'performance',
+                proto: false,
+                struct: {
+                    now: performance.now
+                }
+            },
+            {
+                name: 'Element',
+                proto: true,
+                struct: {
+                    getBoundingClientRect: Element.prototype.getBoundingClientRect,
+                    getClientRects: Element.prototype.getClientRects
+                }
+            },
+            {
+                name: 'Range',
+                proto: true,
+                struct: {
+                    getBoundingClientRect: Range.prototype.getBoundingClientRect,
+                    getClientRects: Range.prototype.getClientRects
+                }
+            },
+            {
+                name: 'WebGLRenderingContext',
+                proto: true,
+                struct: {
+                    shaderSource: WebGLRenderingContext.prototype.shaderSource,
+                    getExtension: WebGLRenderingContext.prototype.getExtension,
+                    getParameter: webgl(JSON.parse('${JSON.stringify(extension)}')), // ? randomize
+                    getSupportedExtensions: WebGLRenderingContext.prototype.getSupportedExtensions
+                }
+            },
+            {
+                name: 'HTMLCanvasElement',
+                proto: true,
+                struct: {
+                    toDataURL: HTMLCanvasElement.prototype.toDataURL, // ? randomize
+                    toBlob: HTMLCanvasElement.prototype.toBlob
+                }
+            },
+            {
+                name: 'CanvasRenderingContext2D',
+                proto: true,
+                struct: {
+                    getImageData: CanvasRenderingContext2D.prototype.getImageData,
+                    isPointInPath: CanvasRenderingContext2D.prototype.isPointInPath,
+                    isPointInStroke: CanvasRenderingContext2D.prototype.isPointInStroke,
+                    measureText: CanvasRenderingContext2D.prototype.measureText,
+                }
+            },
+            {
+                name: 'AudioContext',
+                proto: true,
+                struct: {
+                    createAnalyser: AudioContext.prototype.createAnalyser,
+                    createOscillator: AudioContext.prototype.createOscillator,
+                }
+            },
+            {
+                name: 'AudioBuffer',
+                proto: true,
+                struct: {
+                    getChannelData: AudioBuffer.prototype.getChannelData,
+                    copyFromChannel: AudioBuffer.prototype.copyFromChannel
+                }
+            },
+            {
+                name: 'RTCPeerConnection',
+                proto: true,
+                struct: {
+                    createDataChannel: RTCPeerConnection.prototype.createDataChannel, // ? block
+                    createOffer: RTCPeerConnection.prototype.createOffer, // ? block
+                    setRemoteDescription: RTCPeerConnection.prototype.setRemoteDescription // ? block
+                }
+            }      
+            ]
+ 
             function definify(struct) {
                 const redefinedProps = {}
                 Object.keys(struct).forEach(prop => {
@@ -292,36 +364,21 @@
             }
             function redefine(root) {
                 // Randomized
-                Object.defineProperties(root.navigator, definify(navProps))
-                Object.defineProperties(root.screen, definify(screenProps))
-                Object.defineProperties(root.WebGLRenderingContext.prototype, definify(webglProps))
-                // Static
-                Object.defineProperties(root.navigator, definify(staticNavProps))
-                Object.defineProperties(root.Date.prototype, definify(dateProps))
+                apiStructs.forEach(api => {
+                    const { name, proto, struct } = api
+                    return Object.defineProperties(
+                        (proto?root[name].prototype:root[name]), definify(struct)
+                    )
+                })
+                // Deep calls
                 Object.defineProperties(root.Intl.DateTimeFormat.prototype, definify(intlProps))
-                Object.defineProperties(root.Math, definify(mathProps))
                 Object.defineProperties(root.navigator.mediaDevices, definify(mediaDeviceProps))
-                Object.defineProperties(root.HTMLVideoElement.prototype, definify(videoElementProps))
-                Object.defineProperties(root.HTMLMediaElement.prototype, definify(mediaElementProps))
-                Object.defineProperties(root.MediaSource, definify(mediaSourceProps))
-                Object.defineProperties(root.MediaRecorder, definify(mediaRecorderProps))
-                Object.defineProperties(root.speechSynthesis, definify(speechProps))
-                Object.defineProperties(root.performance, definify(performanceProps))
-                Object.defineProperties(root.Element.prototype, definify(elemRectProps))
-                Object.defineProperties(root.Range.prototype, definify(rangeRectProps))
-                Object.defineProperties(root.WebGLRenderingContext.prototype, definify(staticWebglProps))
-                Object.defineProperties(root.HTMLCanvasElement.prototype, definify(canvasProps))
-                Object.defineProperties(root.CanvasRenderingContext2D.prototype, definify(canvasContextProps))
-                Object.defineProperties(root.AudioContext.prototype, definify(audioProps))
-                Object.defineProperties(root.AudioBuffer.prototype, definify(audioBufferProps))
-                Object.defineProperties(root.RTCPeerConnection.prototype, definify(webRTCProps))
             }
             redefine(window)
         })()
         `)
         return
     }
-    //chrome.extension.onMessage.addListener(define)
 
     chrome.storage.local.get(['struct', 'log'], define)
 

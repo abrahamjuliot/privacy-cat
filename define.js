@@ -178,14 +178,12 @@
                 if (newPropRead) {
                     rankCounter += fpRank
                     propsRead.push(propDescription)
-                    //post({ propsRead })
                 }
-
                 // Detect excessive prop reads and warn
                 const excessivePropReadsDetected = rankCounter >= warningRank
                 if (listenForExcessivePropReads && excessivePropReadsDetected) {
                     console.warn('Excessive property reads detected!', propsReadAll, scripts)
-                    listenForExcessivePropReads = false 
+                    listenForExcessivePropReads = false
                 }
                 // if the script is not yet in the traced scripts collection, add it
                 if (!tracedScript) {
@@ -211,7 +209,6 @@
                 return
             }
 
-            
             // difinify
             const intlProps = {
                 resolvedOptions: Intl.DateTimeFormat.prototype.resolvedOptions

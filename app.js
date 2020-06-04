@@ -1,4 +1,8 @@
-const listenOnMessage = (data, sender, sendResponse) => {
+// const settings = {
+//     chrome.storage.local.set({})
+// }
+
+const listenOnMessage = (data, sender) => {
     const { tab: { id: senderTabId } } = sender
     const fingerprintScripts = data.fingerprintScripts || []
     const len = fingerprintScripts.length
@@ -10,7 +14,7 @@ const listenOnMessage = (data, sender, sendResponse) => {
             if (visibleTab) {
                 chrome.browserAction.setBadgeText({ text: `${len}`, tabId })
             } 
-            else { // prerendered tab, invisible yet, happens quite rarely
+            else { // prerendered tab
                 chrome.webNavigation.onCommitted.addListener(function update(details) {
                     if (details.tabId == senderTabId) {
                         chrome.browserAction.setBadgeText({ text: `${len}`, tabId: senderTabId })

@@ -150,10 +150,10 @@
             const scripts = []
             const { canvas, audio, rtcpeer, rects } = JSON.parse('${JSON.stringify(permission)}')
             const permitToRead = {
-                toDataURL: canvas, // HTMLCanvasElement
-                getChannelData: audio, // AudioBuffer
-                createDataChannel: rtcpeer, // RTCPeerConnection
-                getClientRects: rects,
+                toDataURL: !canvas, // HTMLCanvasElement
+                getChannelData: !audio, // AudioBuffer
+                createDataChannel: !rtcpeer, // RTCPeerConnection
+                getClientRects: !rects,
             }
             const watch = (prop) => {
                 const url = getCurrentScript()

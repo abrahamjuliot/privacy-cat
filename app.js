@@ -90,7 +90,7 @@ const randomize = (settings) => {
     
     // Device Touch, Hardware, and Memory
     function canLieTouch() {
-        const userAgent = struct.navProps.userAgent
+        const userAgent = !platform ? navigator.userAgent : struct.navProps.userAgent
         const os = (
             /windows phone/ig.test(userAgent) ? 'Windows Phone' :
                 /win(dows|16|32|64|95|98|nt)|wow64/ig.test(userAgent) ? 'Windows' :

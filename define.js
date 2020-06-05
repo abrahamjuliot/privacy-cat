@@ -26,8 +26,9 @@
     }
 
     function define(response) {
-        //chrome.extension.onMessage.removeListener(define)
-        const { struct } = response
+        const { struct, settings } = response
+        const { block, notify, permission } = settings
+        console.log(settings)
         const { navProps, screenProps, webgl: { extension } } = struct
         const hashify = str => {
             let i, len, hash = 0x811c9dc5
@@ -37,7 +38,7 @@
             return ("0000000" + (hash >>> 0).toString(16)).substr(-8)
         }
         // Log random fingerprint hash id
-        const title = `🐱Meow! Your device fingerprint is randomized (hash id: ${hashify(JSON.stringify(struct))})`
+        const title = `🐱Meow! Your fingerprint is randomized (hash id: ${hashify(JSON.stringify(struct))})`
         const entries = [
             ...Object.entries(navProps),
             ...Object.entries(screenProps)
@@ -55,7 +56,11 @@
             function webgl(extension) {
                 const getParameter = WebGLRenderingContext.prototype.getParameter
                 return function (x) {
-                    return extension[x] ? extension[x] : getParameter.apply(this, arguments)
+                    return (
+                        extension == false ? getParameter.apply(this, arguments) :
+                        extension[x] ? extension[x] : 
+                        getParameter.apply(this, arguments)
+                    )
                 }
             }
             // Detect Fingerprinting
@@ -143,12 +148,12 @@
             const propsReadAll = {}
             const fingerprintScripts = []
             const scripts = []
-
-            const permitToRead = { // get permit from options
-                toDataURL: false, // HTMLCanvasElement
-                getChannelData: false, // AudioBuffer
-                createDataChannel: false, // RTCPeerConnection
-                getClientRects: false,
+            const { canvas, audio, rtcpeer, rects } = JSON.parse('${JSON.stringify(permission)}')
+            const permitToRead = {
+                toDataURL: canvas, // HTMLCanvasElement
+                getChannelData: audio, // AudioBuffer
+                createDataChannel: rtcpeer, // RTCPeerConnection
+                getClientRects: rects,
             }
             const watch = (prop) => {
                 const url = getCurrentScript()
@@ -199,9 +204,10 @@
                     const alreadyCaught = tracedScript.creep
                     if (!alreadyCaught && fingerprintingDetected) {
                         const warning = 'Fingerprinting detected!'
+                        const notificationSettings = JSON.parse('${JSON.stringify(notify)}')
                         tracedScript.creep = true // caught!
                         fingerprintScripts.push(url)
-                        post({ fingerprintScripts })
+                        post({ fingerprintScripts, notificationSettings, warning, url })
                         console.warn(warning, url, tracedScript.all)
                     }
                 }
@@ -210,6 +216,9 @@
             }
 
             // difinify
+            const {
+                speech, plugins, mimetypes, gamepads, battery, connection, webrtc
+            } = JSON.parse('${JSON.stringify(block)}')
             const intlProps = {
                 resolvedOptions: Intl.DateTimeFormat.prototype.resolvedOptions
             }
@@ -223,11 +232,11 @@
                     ...JSON.parse('${JSON.stringify(navProps)}'), // ? randomize
                     doNotTrack: navigator.doNotTrack,
                     languages: navigator.languages,
-                    mimeTypes: navigator.mimeTypes, // ? block
-                    plugins: navigator.plugins,     // ? block
-                    connection: navigator.connection,
-                    getBattery: navigator.getBattery, // ? block
-                    getGamepads: navigator.getGamepads // ? block
+                    mimeTypes: mimetypes ? [] : navigator.mimeTypes, // ? block
+                    plugins: plugins ? [] : navigator.plugins,     // ? block
+                    connection: connection ? undefined : navigator.connection, // ? block
+                    getBattery: battery ? () => {} : navigator.getBattery, // ? block
+                    getGamepads: gamepads ? () => [] : navigator.getGamepads // ? block
                 }
             }, 
             {
@@ -287,7 +296,7 @@
                 name: 'speechSynthesis',
                 proto: false,
                 struct: {
-                    getVoices: speechSynthesis.getVoices // ? block
+                    getVoices: speech ? () => {} : speechSynthesis.getVoices // ? block
                 }
             },
             {
@@ -361,9 +370,9 @@
                 name: 'RTCPeerConnection',
                 proto: true,
                 struct: {
-                    createDataChannel: RTCPeerConnection.prototype.createDataChannel, // ? block
-                    createOffer: RTCPeerConnection.prototype.createOffer, // ? block
-                    setRemoteDescription: RTCPeerConnection.prototype.setRemoteDescription // ? block
+                    createDataChannel: rtcpeer ? () => {} : RTCPeerConnection.prototype.createDataChannel, // ? block
+                    createOffer: rtcpeer ? () => {} : RTCPeerConnection.prototype.createOffer, // ? block
+                    setRemoteDescription: rtcpeer ? () => {} : RTCPeerConnection.prototype.setRemoteDescription // ? block
                 }
             }      
             ]
@@ -395,7 +404,7 @@
         return
     }
 
-    chrome.storage.local.get(['struct', 'log'], define)
+    chrome.storage.sync.get(['struct', 'settings'], define)
 
     return
 })()

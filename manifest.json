@@ -9,7 +9,8 @@
         "<all_urls>",
         "webNavigation",
         "webRequest",
-        "webRequestBlocking"
+        "webRequestBlocking",
+        "notifications"
     ],
     "background": {
         "scripts": [

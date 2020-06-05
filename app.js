@@ -1,32 +1,30 @@
-// const settings = {
-//     chrome.storage.local.set({})
-// }
-
-const listenOnMessage = (data, sender) => {
-    const { tab: { id: senderTabId } } = sender
-    const fingerprintScripts = data.fingerprintScripts || []
-    const len = fingerprintScripts.length
-    if (len) {
-        chrome.tabs.get(senderTabId, tab => {
-            if (chrome.runtime.lastError) { return }
-            const { id: tabId } = tab
-            const visibleTab = tab.index >= 0
-            if (visibleTab) {
-                chrome.browserAction.setBadgeText({ text: `${len}`, tabId })
-            } 
-            else { // prerendered tab
-                chrome.webNavigation.onCommitted.addListener(function update(details) {
-                    if (details.tabId == senderTabId) {
-                        chrome.browserAction.setBadgeText({ text: `${len}`, tabId: senderTabId })
-                        chrome.webNavigation.onCommitted.removeListener(update)
-                    }
-                })
-            }
-        })
+const settings = {
+    randomize: {
+        time: 1,
+        platform: true,
+        screens: true,
+        gpu: true,
+        touch: true
+    },
+    block: {
+        speech: false,
+        plugins: false,
+        mimetypes: false,
+        gamepads: false,
+        battery: false,
+        connection: false,
+        webrtc: false
+    },
+    notify: {
+        notification: false
+    },
+    permission: {
+        canvas: false,
+        audio: false,
+        rects: false,
+        rtcpeer: false
     }
 }
-
-chrome.runtime.onMessage.addListener(listenOnMessage)
 
 const struct = {
     navProps: {},
@@ -34,7 +32,10 @@ const struct = {
     webgl: {}
 }
 
-const randomize = () => {
+const randomize = (settings) => {
+    // Settings
+    const { randomize: { platform, screens, gpu, touch } } = settings
+
     // Helpers
     const listRand = (list) => list[Math.floor(Math.random() * list.length)]
     const evenRand = (min, max) =>
@@ -77,10 +78,16 @@ const randomize = () => {
         '81.0.4044.138',
         '80.0.3987.149'
     ]
-    struct.navProps.platform = agentPlatform
-    struct.navProps.appVersion = `5.0 (${agent}) ${apple} ${gecko} Chrome/${listRand(version)} ${safari}`
-    struct.navProps.userAgent = `${mozilla}${struct.navProps.appVersion}`
-
+    struct.navProps.platform = !platform ? navigator.platform : agentPlatform
+    struct.navProps.appVersion = (
+        !platform ? navigator.appVersion :
+        `5.0 (${agent}) ${apple} ${gecko} Chrome/${listRand(version)} ${safari}`
+    )
+    struct.navProps.userAgent = (
+        !platform ? navigator.userAgent :
+        `${mozilla}${struct.navProps.appVersion}`
+    )
+    
     // Device Touch, Hardware, and Memory
     function canLieTouch() {
         const userAgent = struct.navProps.userAgent
@@ -97,13 +104,13 @@ const randomize = () => {
         const touchOS = (/^(Windows(|\sPhone)|CrOS|Android|iOS)$/ig.test(os))
         return touchOS
     }
-    struct.navProps.maxTouchPoints = canLieTouch() ? rand(1, 10) : navigator.maxTouchPoints
-    struct.navProps.hardwareConcurrency = rand(1, 16)
-    struct.navProps.deviceMemory = evenRand(2, 32)
+    struct.navProps.maxTouchPoints = !touch ? navigator.maxTouchPoints : canLieTouch() ? rand(1, 10) : navigator.maxTouchPoints
+    struct.navProps.hardwareConcurrency = !platform ? navigator.hardwareConcurrency : rand(1, 16)
+    struct.navProps.deviceMemory = !platform ? navigator.deviceMemory : evenRand(2, 32)
 
     // Device Screen
     // https://gs.statcounter.com/screen-resolution-stats
-    const screenFingerprint = () => {
+    const randomScreen = () => {
         const device = listRand([{
             width: 1920,
             height: 1080
@@ -123,8 +130,15 @@ const randomize = () => {
         device.pixelDepth = listRand([24, 32, 48])
         return device
     }
-
-    struct.screenProps = screenFingerprint()
+    const actualScreen = {
+        width,
+        hieght,
+        availWidth,
+        availHeight,
+        colorDepth,
+        pixelDepth
+    } = screen
+    struct.screenProps = !screens ? actualScreen : randomScreen()
 
     // Device GPU
     //https://www.primegrid.com/gpu_list.php
@@ -222,7 +236,7 @@ const randomize = () => {
         return extension
     }
     struct.webgl = {
-        extension: webglRenderer()
+        extension: !gpu ? false : webglRenderer()
     }
 
     return
@@ -236,18 +250,80 @@ function setHeader(details) {
     if (userAgent && uaIndex >= 0) {
         requestHeaders[uaIndex].value = userAgent
     }
-    //const log = []
-    //log.push({ requestHeaders })
-    chrome.storage.local.set({ struct })
+
+    chrome.storage.sync.set({ struct })
 
     return { requestHeaders }
 }
-const seconds = 1000
-randomize()
-setInterval(randomize, 60 * seconds) // randomize every x seconds
 
-chrome.webRequest.onBeforeSendHeaders.addListener(
-    setHeader,
-    { urls: ['<all_urls>'] },
-    ['blocking', 'requestHeaders']
-)
+const startProgram = settings => {
+    const seconds = 1000
+    const { randomize: { time } } = settings
+    console.log(`Running. Randomization set to refresh every ${time} minutes.`)
+    randomize(settings)
+    setInterval(() => randomize(settings), time * seconds) // randomize every x seconds
+    chrome.webRequest.onBeforeSendHeaders.removeListener(setHeader)
+    return chrome.webRequest.onBeforeSendHeaders.addListener(
+        setHeader,
+        { urls: ['<all_urls>'] },
+        ['blocking', 'requestHeaders']
+    )
+}
+
+const reboot = () => {
+    return chrome.storage.sync.get('settings', (response) => {
+
+        if (!response.settings) {
+            // start with default settings
+            return chrome.storage.sync.set({ settings }, () => {
+                startProgram(settings)
+            })
+        }
+        return startProgram(response.settings)
+    })
+} 
+
+reboot()
+
+const chromeNotification = (title, message) => {
+    return chrome.notifications.create('', {
+        title,
+        message,
+        type: 'basic',
+        iconUrl: 'icon48.png'
+    })
+}
+// { fingerprintScripts, notificationSettings, warning, url }
+const listenOnMessage = (data, sender) => {
+    // listen for execute reboot
+    if (data.execute != undefined && data.execute == 'reboot') {
+        return reboot()
+    }
+    // listen for fingerprint scripts
+    const { tab: { id: senderTabId } } = sender
+    const { notificationSettings: { notification }, warning, url } = data
+    const fingerprintScripts = data.fingerprintScripts || []
+    const len = fingerprintScripts.length
+    if (len) {
+        chrome.tabs.get(senderTabId, tab => {
+            if (chrome.runtime.lastError) { return }
+            const { id: tabId } = tab
+            const visibleTab = tab.index >= 0
+            if (visibleTab) {
+                chrome.browserAction.setBadgeText({ text: `${len}`, tabId })
+                if (notification) { chromeNotification(warning, url) }
+            } 
+            else { // prerendered tab
+                chrome.webNavigation.onCommitted.addListener(function update(details) {
+                    if (details.tabId == senderTabId) {
+                        chrome.browserAction.setBadgeText({ text: `${len}`, tabId: senderTabId })
+                        chrome.webNavigation.onCommitted.removeListener(update)
+                        if (notification) { chromeNotification(warning, url) }
+                    }
+                })
+            }
+        })
+    }
+}
+
+chrome.runtime.onMessage.addListener(listenOnMessage)

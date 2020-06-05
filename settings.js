@@ -141,10 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (el == time10El) { updateSync('randomize', 'time', 10, true) }
             if (el == time60El) { updateSync('randomize', 'time', 60, true) }
             if (el == time480El) { updateSync('randomize', 'time', 480, true) }
-            if (el == platformEl) { updateSync('randomize', 'platform', platformEl.checked) }
-            if (el == screensEl) { updateSync('randomize', 'screens', screensEl.checked) }
-            if (el == gpuEl) { updateSync('randomize', 'gpu', gpuEl.checked) }
-            if (el == touchEl) { updateSync('randomize', 'touch', touchEl.checked) }
+            if (el == platformEl) { updateSync('randomize', 'platform', platformEl.checked, true) }
+            if (el == screensEl) { updateSync('randomize', 'screens', screensEl.checked, true) }
+            if (el == gpuEl) { updateSync('randomize', 'gpu', gpuEl.checked, true) }
+            if (el == touchEl) { updateSync('randomize', 'touch', touchEl.checked, true) }
             if (el == speechEl) { updateSync('block', 'speech', speechEl.checked) }
             if (el == pluginsEl) { updateSync('block', 'plugins', pluginsEl.checked) }
             if (el == mimetypesEl) { updateSync('block', 'mimetypes', mimetypesEl.checked) }

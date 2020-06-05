@@ -32,7 +32,8 @@ const struct = {
     webgl: {}
 }
 
-const randomize = (settings) => {
+const randomizify = (settings) => {
+    console.log('Setting up new randomization...')
     // Settings
     const { randomize: { platform, screens, gpu, touch } } = settings
 
@@ -261,8 +262,8 @@ const startProgram = settings => {
     
     const { randomize: { time } } = settings
     console.log(`Running. Randomization set to refresh every ${time} minutes.`)
-    randomize(settings)
-    setInterval(() => randomize(settings), time * 60 * seconds) // randomize every x seconds
+    randomizify(settings)
+    setInterval(() => randomizify(settings), time * 60 * seconds) // randomize every x seconds
     chrome.webRequest.onBeforeSendHeaders.removeListener(setHeader)
     return chrome.webRequest.onBeforeSendHeaders.addListener(
         setHeader,
@@ -295,7 +296,7 @@ const chromeNotification = (title, message) => {
         iconUrl: 'icon48.png'
     })
 }
-// { fingerprintScripts, notificationSettings, warning, url }
+
 const listenOnMessage = (data, sender) => {
     // listen for execute reboot
     if (data.execute != undefined && data.execute == 'reboot') {

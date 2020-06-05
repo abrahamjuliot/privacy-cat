@@ -258,10 +258,11 @@ function setHeader(details) {
 
 const startProgram = settings => {
     const seconds = 1000
+    
     const { randomize: { time } } = settings
     console.log(`Running. Randomization set to refresh every ${time} minutes.`)
     randomize(settings)
-    setInterval(() => randomize(settings), time * seconds) // randomize every x seconds
+    setInterval(() => randomize(settings), time * 60 * seconds) // randomize every x seconds
     chrome.webRequest.onBeforeSendHeaders.removeListener(setHeader)
     return chrome.webRequest.onBeforeSendHeaders.addListener(
         setHeader,
@@ -271,6 +272,7 @@ const startProgram = settings => {
 }
 
 const reboot = () => {
+    console.log('rebooting...')
     return chrome.storage.sync.get('settings', (response) => {
 
         if (!response.settings) {

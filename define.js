@@ -47,7 +47,9 @@
         for (const [key, value] of entries) {
             console.log(`${key}:`, value)
         }
-        console.log(`WebGLRenderer:`, extension['37446'])
+        if (extension['37446']) {
+            console.log(`WebGLRenderer:`, extension['37446'])
+        }
         console.groupEnd()
 
         injectScript(/* js */`

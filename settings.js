@@ -1,8 +1,8 @@
 //var color = document.getElementById('color').value;
 //var likesColor = document.getElementById('like').checked;
 const noop = () => { }
-const setSync = (data, fn = noop) => chrome.storage.sync.set(data, fn)
-const getSync = (data, fn = noop) => chrome.storage.sync.get(data, fn)
+const setSync = (data, fn = noop) => chrome.storage.local.set(data, fn)
+const getSync = (data, fn = noop) => chrome.storage.local.get(data, fn)
 const id = (x) => document.getElementById(x)
 const first = (x) => document.querySelector(x)
 

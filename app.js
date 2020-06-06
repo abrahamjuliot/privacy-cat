@@ -252,7 +252,7 @@ function setHeader(details) {
         requestHeaders[uaIndex].value = userAgent
     }
 
-    chrome.storage.sync.set({ struct })
+    chrome.storage.local.set({ struct })
 
     return { requestHeaders }
 }
@@ -274,11 +274,11 @@ const startProgram = settings => {
 
 const reboot = () => {
     console.log('rebooting...')
-    return chrome.storage.sync.get('settings', (response) => {
+    return chrome.storage.local.get('settings', (response) => {
 
         if (!response.settings) {
             // start with default settings
-            return chrome.storage.sync.set({ settings }, () => {
+            return chrome.storage.local.set({ settings }, () => {
                 startProgram(settings)
             })
         }

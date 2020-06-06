@@ -28,7 +28,7 @@
     function define(response) {
         const { struct, settings } = response
         const { block, notify, permission } = settings
-        console.log(settings)
+        //console.log(settings)
         const { navProps, screenProps, webgl: { extension } } = struct
         const hashify = str => {
             let i, len, hash = 0x811c9dc5
@@ -169,7 +169,7 @@
                     const randomMessage = (Math.random() + 1).toString(36).substring(2, 8)
                     const permitMessage = (
                         'This site is trying to read '
-                        +propDescription
+                        +propDescription.replace(/\.prototype/, '')
                         +', which can be used to uniquely identify your browser '
                         +'and track your internet activity without your consent. '
                         +'OK to allow or Cancel to abort.'
@@ -406,7 +406,7 @@
         return
     }
 
-    chrome.storage.sync.get(['struct', 'settings'], define)
+    chrome.storage.local.get(['struct', 'settings'], define)
 
     return
 })()

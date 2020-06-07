@@ -26,16 +26,36 @@ const settings = {
     }
 }
 
+// const hashify = str => {
+//     const json = `${JSON.stringify(str)}`
+
+//     let i, len, hash = 0x811c9dc5
+//     for (i = 0, len = json.length; i < len; i++) {
+//         hash = Math.imul(31, hash) + json.charCodeAt(i) | 0
+//     }
+//     return ("0000000" + (hash >>> 0).toString(16)).substr(-8)
+// }
+
+const hashify = async (x) => {
+    const json = `${JSON.stringify(x)}`
+    const jsonBuffer = new TextEncoder('utf-8').encode(json)
+    const hashBuffer = await crypto.subtle.digest('SHA-256', jsonBuffer)
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const hashHex = hashArray.map(b => ('00' + b.toString(16)).slice(-2)).join('')
+    return hashHex
+}
+
 const struct = {
     navProps: {},
     screenProps: {},
     webgl: {},
-    timestamp: ''
+    canvas: {},
+    timestamp: '',
+    hash: ''
 }
-
 const randomizify = (settings, getNewSettings = false) => {
     
-    function execute(settings) {
+    async function execute(settings) {
         // Settings
         const { randomize: { system, screens, gpu, touch } } = settings
 
@@ -243,6 +263,17 @@ const randomizify = (settings, getNewSettings = false) => {
             extension: !gpu ? false : webglRenderer()
         }
 
+        // create hash
+        struct.hash = await hashify({...struct.navProps, ...struct.screenProps, ...struct.webgl, ...struct.canvas})
+
+        // timestamp
+        struct.timestamp = new Date().toLocaleTimeString()
+
+        // log exection
+        console.log(`${struct.timestamp}: Setting up new randomization... ${struct.hash}`)
+        
+        // update storage and send message to settings
+        chrome.storage.local.set({ struct })
         chrome.runtime.sendMessage(
             {
                 fingerprint: {
@@ -252,10 +283,7 @@ const randomizify = (settings, getNewSettings = false) => {
         )
         return
     }
-    struct.timestamp = new Date().toLocaleTimeString()
-
-    console.log(`${struct.timestamp}: Setting up new randomization...`)
-
+    
     if (getNewSettings) {
         console.log('[Fetched latest settings]')
         return chrome.storage.local.get('settings', (response) => {

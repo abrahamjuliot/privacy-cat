@@ -59,30 +59,36 @@ const settings = {
     }
 }
 
-const removeExtraSpaces = (x) => x.replace(/\s{2,}/g, ' ')
+//const removeExtraSpaces = (x) => x.replace(/\s{2,}/g, ' ')
+const actualWebglRenderer = () => {
+    const context = document.createElement('canvas').getContext('webgl')
+    const extension = context.getExtension('WEBGL_debug_renderer_info')
+    const renderer = context.getParameter(extension.UNMASKED_RENDERER_WEBGL)
+    return renderer
+}
+const gpuTitle = (x) => /\((.*?)\svs/g.exec(x)[1]
 const configureSettings = () => {
     document.addEventListener('DOMContentLoaded', () => {
         const fingerprintEl = id('fingerprint')
-
         const showRandomizationInView = data => {
             const isMessage = data.fingerprint != undefined
             const isStorage = data.struct != undefined
             if (isMessage || isStorage) {
                 console.log(`Getting text from... message: ${isMessage}, storage: ${isStorage}`)
                 const struct = isMessage ? data.fingerprint.struct : data.struct
-                const { navProps, screenProps, webgl: { extension }, timestamp } = struct
+                const { navProps, screenProps, webgl: { extension }, hash, timestamp } = struct
                 const { userAgent, deviceMemory: mem, hardwareConcurrency: cpu, maxTouchPoints: mtp } = navProps
                 const { availHeight: ah, availWidth: aw, colorDepth: cd, height: h, pixelDepth: pd, width: w } = screenProps
                 const ver = /Chrome\/(.*?)\./g.exec(userAgent)[1]
                 const os = /Windows|Linux|Mac/g.exec(userAgent)[0]
-                const gpu = extension == false ? '' : `${/\((.*?)\svs/g.exec(extension['37446'])[1]},`
-                const text = `@${timestamp}: Chrome ${ver} ${os}, memory: ${mem},  cpu: ${cpu}, ${gpu} screen: ${aw}x${ah} of ${w}x${h}, pixels: ${pd}, color: ${cd}, touch: ${mtp}`
+                const gpu = extension == false ? gpuTitle(actualWebglRenderer()) : gpuTitle(extension['37446'])
+                const text = `${hash} [@${timestamp}]: Chrome ${ver} ${os}, memory: ${mem},  cpu: ${cpu}, ${gpu}, screen: ${aw}x${ah} of ${w}x${h}, pixels: ${pd}, color: ${cd}, touch: ${mtp}`
                 fingerprintEl.classList.remove('show')
                 fingerprintEl.classList.add('hide')
                 setTimeout(() => {
                     fingerprintEl.classList.remove('hide')
                     fingerprintEl.classList.add('show')
-                    fingerprintEl.setAttribute('data-fingerprint', removeExtraSpaces(text))
+                    fingerprintEl.setAttribute('data-fingerprint', text)
                     console.log(`Added at ${timestamp}`)
                 }, 300)
             }
@@ -248,10 +254,26 @@ const webtrcDataChannel = 'RTCPeerConnection.createDataChannel'
 // HTML View
 const view = html/* html */`
 <style>
+    /* github.com/necolas/normalize.css */
+    html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}main{display:block}h1{font-size:2em;margin:0.67em 0}hr{box-sizing:content-box;height:0;overflow:visible}pre{font-family:monospace, monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}code,kbd,samp{font-family:monospace, monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-0.25em}sup{top:-0.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,input{overflow:visible}button,select{text-transform:none}[type="button"],[type="reset"],[type="submit"],button{-webkit-appearance:button}[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type="button"]:-moz-focusring,[type="reset"]:-moz-focusring,[type="submit"]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{padding:0.35em 0.75em 0.625em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}progress{vertical-align:baseline}textarea{overflow:auto}[type="checkbox"],[type="radio"]{box-sizing:border-box;padding:0}[type="number"]::-webkit-inner-spin-button,[type="number"]::-webkit-outer-spin-button{height:auto}[type="search"]{-webkit-appearance:textfield;outline-offset:-2px}[type="search"]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}details{display:block}summary{display:list-item}template{display:none}[hidden]{display:none}
+    /* custom */
     body {
-      width: 400px;
+      position: relative;
+      width: 330px;
       box-sizing: border-box;
-      background: linear-gradient(5deg, #fff 60%, #9d99de 0%, #99d4de 90%);
+      margin: 5px;
+    }
+    body:after {
+        position: absolute;
+        content: "";
+        width: 120%;
+        height: 50%;
+        top: -100px;
+        left: -20px;
+        transform-origin: top left;
+        transform: skewY(3deg);
+        z-index: -10;
+        background: linear-gradient(45deg, #9d99de 0%, #99d4de 90%);
     }
     section {
       display: flex;
@@ -262,6 +284,10 @@ const view = html/* html */`
     }
     input:focus {
         outline: none;
+    }
+    button, input, select {
+        line-height: 1.15;
+        margin: 2px 5px;
     }
     strong,
     label {
@@ -288,7 +314,22 @@ const view = html/* html */`
       margin: 10px auto;
       box-shadow: 0px 1px 0px 1px #55555512, 0px 2px 4px 1px #55555526;
     }
-
+    #randomization {
+        animation: enter 0.3s 0.1s ease both;
+    }
+    #special {
+        animation: enter 0.3s 0.2s ease both;
+    }
+    @keyframes enter {
+        0%, 60% {
+            transform: translate(-15px, 0);
+            opacity: 0;
+        }
+        100% {
+            transform: translate(0);
+            opacity: 1;
+        }
+    }
     .randomization-section,
     .block-section,
     .permission-section {
@@ -314,10 +355,11 @@ const view = html/* html */`
         transition: background 0.3s ease;
     }
     #fingerprint {
+        word-wrap: break-word;
         font-family: monospace;
         font-size: 12px;
         margin: 0 auto;
-        min-height: 50px;
+        min-height: 80px;
         color: #555;
         padding: 10px 20px;
         border-radius: 2px;

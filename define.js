@@ -25,36 +25,36 @@
         return head.insertBefore(scriptEl, head.firstChild)
     }
 
+    const actualWebglRenderer = () => {
+        const context = document.createElement('canvas').getContext('webgl')
+        const extension = context.getExtension('WEBGL_debug_renderer_info')
+        const renderer = context.getParameter(extension.UNMASKED_RENDERER_WEBGL)
+        return renderer
+    }
+
     function define(response) {
         const { struct, settings } = response
         const { block, notify, permission } = settings
         //console.log(settings)
-        const { navProps, screenProps, webgl: { extension } } = struct
-        const hashify = str => {
-            let i, len, hash = 0x811c9dc5
-            for (i = 0, len = str.length; i < len; i++) {
-                hash = Math.imul(31, hash) + str.charCodeAt(i) | 0
-            }
-            return ("0000000" + (hash >>> 0).toString(16)).substr(-8)
-        }
+        const { navProps, screenProps, webgl: { extension }, hash } = struct
+
         // Log random fingerprint hash id
-        const title = `🐱Meow! Your fingerprint is randomized (hash id: ${hashify(JSON.stringify(struct))})`
+        const title = `🐱Meow! Your fingerprint is randomized (hash id: ${hash})`
         const entries = [
             ...Object.entries(navProps),
             ...Object.entries(screenProps)
         ]
         console.groupCollapsed(title)
-        for (const [key, value] of entries) {
-            console.log(`${key}:`, value)
-        }
-        if (extension['37446']) {
-            console.log(`WebGLRenderer:`, extension['37446'])
-        }
+            for (const [key, value] of entries) {
+                console.log(`${key}:`, value)
+            }
+            const renderer = extension['37446'] ? extension['37446'] : actualWebglRenderer()
+            console.log(`WebGLRenderer:`, renderer)
         console.groupEnd()
 
         injectScript(/* js */`
         (function() {
-            // get device
+            // client side computation
             function webgl(extension) {
                 const getParameter = WebGLRenderingContext.prototype.getParameter
                 return function (x) {

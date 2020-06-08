@@ -1,5 +1,7 @@
 
 - look into rect and audio
 - turn off for this domain
-- capture excessive prop reads, fp scripts (change icon color)
-- iframes
+- iframes (aggessive)
+- console (remove or optional)
+- extension/tab data: props read and excessive (modal)
+- Explian in  5 words how items can fingerprint you

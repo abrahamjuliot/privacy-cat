@@ -17,6 +17,7 @@
         return
     })
 
+    // https://stackoverflow.com/questions/12395722/can-the-window-object-be-modified-from-a-chrome-extension
     function injectScript(code) {
         const scriptEl = document.createElement('script')
         const head = document.head
@@ -53,6 +54,8 @@
             console.log(`Canvas:`, canvasHash)
         console.groupEnd()
 
+        // https://stackoverflow.com/questions/9515704/insert-code-into-the-page-context-using-a-content-script
+        // https://marketplace.visualstudio.com/items?itemName=bierner.comment-tagged-templates
         injectScript(/* js */`
         (function() {
             // client side computation
@@ -184,6 +187,8 @@
                 createOffer: ['RTCPeerConnection.prototype.createOffer', 3],
                 setRemoteDescription: ['RTCPeerConnection.setRemoteDescription', 3]
             }
+
+            // https://stackoverflow.com/questions/2255689/how-to-get-the-file-path-of-the-currently-executing-javascript-code
             const getCurrentScript = () => {
                 const jsURL = ${/(\/.+\.js)/gi}
                 const error = new Error()
@@ -264,7 +269,7 @@
                         const notificationSettings = JSON.parse('${JSON.stringify(notify)}')
                         tracedScript.creep = true // caught!
                         fingerprintScripts.push(url)
-                        post({ fingerprintScripts, notificationSettings, warning, url })
+                        post({ fingerprintScripts, notificationSettings, warning, url, propsRead: tracedScript.all })
                         console.warn(warning, url, tracedScript.all)
                     }
                 }
@@ -466,6 +471,3 @@
 
     return
 })()
-
-//https://stackoverflow.com/questions/12395722/can-the-window-object-be-modified-from-a-chrome-extension
-//https://stackoverflow.com/questions/9515704/insert-code-into-the-page-context-using-a-content-script

@@ -363,12 +363,12 @@ const reboot = () => {
 
 reboot()
 
-const chromeNotification = (title, message) => {
+const chromeNotification = (title, message, iconUrl = 'icon48.png') => {
     return chrome.notifications.create('', {
         title,
         message,
         type: 'basic',
-        iconUrl: 'icon48.png'
+        iconUrl
     })
 }
 
@@ -379,9 +379,12 @@ const listenOnMessage = (data, sender) => {
     }
     // listen for fingerprint scripts
     const { tab: { id: senderTabId } } = sender
-    const { notificationSettings: { notification }, warning, url } = data
+    const { notificationSettings: { notification }, warning, url, propsRead } = data
     const fingerprintScripts = data.fingerprintScripts || []
     const len = fingerprintScripts.length
+    const notificationMessage = notification ? `${url}\n\n${Object.keys(propsRead).length}+ properties read (view console)` : ''
+
+    if (notification) { console.log(propsRead) }
     if (len) {
         chrome.tabs.get(senderTabId, tab => {
             if (chrome.runtime.lastError) { return }
@@ -389,14 +392,16 @@ const listenOnMessage = (data, sender) => {
             const visibleTab = tab.index >= 0
             if (visibleTab) {
                 chrome.browserAction.setBadgeText({ text: `${len}`, tabId })
-                if (notification) { chromeNotification(warning, url) }
+                if (notification) {
+                    chromeNotification(warning, notificationMessage)
+                }
             }
             else { // prerendered tab
                 chrome.webNavigation.onCommitted.addListener(function update(details) {
                     if (details.tabId == senderTabId) {
                         chrome.browserAction.setBadgeText({ text: `${len}`, tabId: senderTabId })
                         chrome.webNavigation.onCommitted.removeListener(update)
-                        if (notification) { chromeNotification(warning, url) }
+                        if (notification) { chromeNotification(warning, notificationMessage) }
                     }
                 })
             }

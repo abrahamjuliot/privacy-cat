@@ -403,7 +403,7 @@ const view = html/* html */`
     </div>
     <div class="permission-section">
         <strong>Notify Fingerprinting</strong>
-        <label><input type="checkbox" id="notify"><span>Chrome</span></label>
+        <label title="Rich Notifications"><input type="checkbox" id="notify"><span>Chrome</span></label>
         <strong>Require Permission</strong>
         <span>Pauses script execution</span>
         <label title="${canvasToDataURL}"><input type="checkbox" id="canvas"><span>Canvas</span></label>

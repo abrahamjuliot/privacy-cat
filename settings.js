@@ -236,7 +236,7 @@ const configureSettings = () => {
 const systemDescription = 'navigator.userAgent&#013navigator.appVersion&#013navigator.platform&#013navigator.hardwareConcurrency&#013navigator.deviceMemory&#013navigator.maxTouchPoints'
 const screenDescription = 'screen.width&#013screen.height&#013screen.availWidth&#013screen.availHeight&#013screen.colorDepth&#013screen.pixelDepth'
 const webglDescription = 'WebGLRenderingContext.getParameter'
-const canvasDescription = 'HTMLCanvasElement.getContext&#013HTMLCanvasElement.toDataURL'
+const canvasDescription = 'HTMLCanvasElement.getContext&#013CanvasRenderingContext2D&#013WebGLRenderingContext&#013HTMLCanvasElement.toDataURL&#013HTMLCanvasElement.toBlob'
 // Block Description
 const speechDescription = 'speechSynthesis.getVoices'
 const pluginsDescription = 'navigator.plugins'
@@ -246,7 +246,7 @@ const batteryDescription = 'navigator.getBattery'
 const connectionDescription = 'navigator.connection'
 const webrtcDescription = 'RTCPeerConnection.createDataChannel&#013RTCPeerConnection.createOffer&#013RTCPeerConnection.setRemoteDescription'
 // Permission Description
-const canvasToDataURL = 'HTMLCanvasElement.toDataURL'
+const canvasToDataURL = 'HTMLCanvasElement.toDataURL&#013HTMLCanvasElement.toBlob'
 const audioChannelData = 'AudioBuffer.getChannelData'
 const clientRects = '[Range|Element].getClientRects'
 const webtrcDataChannel = 'RTCPeerConnection.createDataChannel'

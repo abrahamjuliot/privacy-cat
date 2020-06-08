@@ -1,8 +1,5 @@
-- sync settings
-- style not like .../ublock origin style
-- add canvas (look into rect and audio)
-- turn off for this domain (google it) - store in sync
+
+- look into rect and audio
+- turn off for this domain
 - capture excessive prop reads, fp scripts (change icon color)
 - iframes
-
-warning level 10, 14, 20

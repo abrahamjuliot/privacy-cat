@@ -266,18 +266,17 @@ const randomizify = (settings, getNewSettings = false) => {
         }
 
         // canvasContext
-        function randomRGBA() {
+        const randomRGBA = () => {
             const clr = () => Math.round(Math.random() * 255)
             return `rgba(${clr()},${clr()},${clr()},${Math.random().toFixed(1)})`
         }
-        function randomFont() {
+        const randomFont = () =>  {
             const fontFamily = [
-                'Arial', 'Arial Black', 'Arial Narrow', 'Courier', 'Courier New', 'Georgia', 'Helvetica',
-                'Impact', 'Lucida Console', 'monospace', 'Tahoma', 'Times', 'Times New Roman', 'Verdana'
+                'Arial', 'Courier', 'Georgia', 'Helvetica', 'Impact', 'monospace', 'Tahoma', 'Times', 'Verdana'
             ]
             const fontSize = Math.floor((Math.random() * 100) + 12)
             const rand = Math.floor(Math.random() * fontFamily.length)
-            return `${fontSize}px '${fontFamily[rand]}'`
+            return `${fontSize}px ${fontFamily[rand]}`
         } 
         const fillStyle = randomRGBA()
         const shadowColor = randomRGBA()
@@ -285,7 +284,7 @@ const randomizify = (settings, getNewSettings = false) => {
         const font = randomFont()
         const widthOffset = rand(-10, 10)
         const heightOffset = rand(-10, 10)
-        struct.canvasContext = canvasContext? { fillStyle, shadowColor, strokeStyle, font, widthOffset, heightOffset } : false
+        struct.canvasContext = canvasContext ? { fillStyle, shadowColor, strokeStyle, font, widthOffset, heightOffset } : false
 
         // create hash
         struct.canvasHash = hashMini(struct.canvasContext)

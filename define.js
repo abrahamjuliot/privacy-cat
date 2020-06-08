@@ -66,31 +66,58 @@
                     )
                 }
             }
+            const canvasContext = JSON.parse('${JSON.stringify(canvasContext)}')
             const canvasProto = HTMLCanvasElement.prototype
             const getContext = HTMLCanvasElement.prototype.getContext
             const toDataURL = HTMLCanvasElement.prototype.toDataURL
+            const toBlob = HTMLCanvasElement.prototype.toBlob
+            const getImageData = CanvasRenderingContext2D.prototype.getImageData
             function canvasContextType(contextType, contextAttributes) {
                 canvasProto._contextType = contextType
                 return getContext.apply(this, arguments)
             }
-            function randomCanvas() {
-                const { fillStyle, shadowColor, strokeStyle, font, widthOffset, heightOffset } = JSON.parse('${JSON.stringify(canvasContext)}') 
+            function randomizeContext2D(context) {
+                const { fillStyle, shadowColor, strokeStyle, font } = canvasContext
+                context.textBaseline = 'top'
+                context.textBaseline = 'alphabetic'
+                context.fillStyle = fillStyle
+                context.shadowColor = shadowColor
+                context.strokeStyle = strokeStyle
+                context.fillText('.', 4, 17)
+                context.font = font
+                return context
+            }
+            function randomizeContextWebgl(context) {
+                const { widthOffset, heightOffset } = canvasContext
+                context.width += widthOffset
+                context.height += heightOffset
+                return context
+            }
+            function randomCanvasDataURL() {
                 if (this._contextType == '2d') {
                     const context = getContext.apply(this, ['2d'])
-                    context.textBaseline = 'top'
-                    context.textBaseline = 'alphabetic'
-                    context.fillStyle = fillStyle
-                    context.shadowColor = shadowColor
-                    context.strokeStyle = strokeStyle
-                    context.fillText('.', 4, 17)
-                    context.font = font
+                    randomizeContext2D(context)
                     return toDataURL.apply(this, arguments)
                 } else if (this._contextType == 'webgl') {
-                    this.width += widthOffset
-                    this.height += heightOffset
+                    randomizeContextWebgl(this)
                     return toDataURL.apply(this, arguments)
                 }
                 return toDataURL.apply(this, arguments)
+            }
+            function randomCanvasBlob() {
+                if (this._contextType == '2d') {
+                    const context = getContext.apply(this, ['2d'])
+                    randomizeContext2D(context)
+                    return toBlob.apply(this, arguments)
+                } else if (this._contextType == 'webgl') {
+                    randomizeContextWebgl(this)
+                    return toBlob.apply(this, arguments)
+                }
+                return toBlob.apply(this, arguments)
+            }
+            function randomImageData() {
+                const context = randomizeContext2D(this)
+                return getImageData.apply(context, arguments)
             }
             // Detect Fingerprinting
             const post = (obj) => {
@@ -142,13 +169,13 @@
                 getExtension: ['WebGLRenderingContext.prototype.getExtension', 4],
                 getParameter: ['WebGLRenderingContext.prototype.getParameter', 8],
                 getSupportedExtensions: ['WebGLRenderingContext.prototype.getSupportedExtensions', 4],
+                getContext: ['HTMLCanvasElement.prototype.getContext', 1],
                 toDataURL: ['HTMLCanvasElement.prototype.toDataURL', 8],
                 toBlob: ['HTMLCanvasElement.prototype.toBlob', 4],
                 getImageData: ['CanvasRenderingContext2D.prototpe.getImageData', 8],
                 isPointInPath: ['CanvasRenderingContext2D.prototype.isPointInPath', 1],
                 isPointInStroke: ['CanvasRenderingContext2D.prototype.isPointInStroke', 1],
                 measureText: ['CanvasRenderingContext2D.prototype.measureText', 2],
-                font: ['CanvasRenderingContext2D.prototype.font', 2],
                 createAnalyser: ['AudioContext.prototype.createAnalyser', 4],
                 createOscillator: ['AudioContext.prototype.createOscillator', 4],
                 getChannelData: ['AudioBuffer.prototype.getChannelData', 8],
@@ -179,6 +206,7 @@
             const scripts = []
             const { canvas, audio, rtcpeer, rects } = JSON.parse('${JSON.stringify(permission)}')
             const permitToRead = {
+                toBlob: !canvas, // HTMLCanvasElement
                 toDataURL: !canvas, // HTMLCanvasElement
                 getChannelData: !audio, // AudioBuffer
                 createDataChannel: !rtcpeer, // RTCPeerConnection
@@ -202,7 +230,7 @@
                         +'OK to allow or Cancel to abort.'
                     )
                     if (!confirm(permitMessage)) { throw new ReferenceError(randomMessage) }
-                    else { permitToRead[prop] = true } // for any reads following
+                    else { permitToRead[prop] = true } // permit additional reads
                 }
                 
                 // count how many times each prop is read
@@ -365,19 +393,19 @@
                 name: 'HTMLCanvasElement',
                 proto: true,
                 struct: {
-                    getContext: canvasContext ? canvasContextType : HTMLCanvasElement.prototype.getContext, // ? randomize
-                    toDataURL: canvasContext ? randomCanvas : HTMLCanvasElement.prototype.toDataURL, // ? randomize
-                    toBlob: HTMLCanvasElement.prototype.toBlob
+                    getContext: canvasContext ? canvasContextType : HTMLCanvasElement.prototype.getContext, // ? capture type to randomize
+                    toDataURL: canvasContext ? randomCanvasDataURL : HTMLCanvasElement.prototype.toDataURL, // ? randomize
+                    toBlob: canvasContext ? randomCanvasBlob : HTMLCanvasElement.prototype.toBlob, // ? randomize
                 }
             },
             {
                 name: 'CanvasRenderingContext2D',
                 proto: true,
                 struct: {
-                    getImageData: CanvasRenderingContext2D.prototype.getImageData,
+                    getImageData: canvasContext ? randomImageData : CanvasRenderingContext2D.prototype.getImageData, // ? randomize
                     isPointInPath: CanvasRenderingContext2D.prototype.isPointInPath,
                     isPointInStroke: CanvasRenderingContext2D.prototype.isPointInStroke,
-                    measureText: CanvasRenderingContext2D.prototype.measureText,
+                    measureText: CanvasRenderingContext2D.prototype.measureText
                 }
             },
             {
@@ -385,7 +413,7 @@
                 proto: true,
                 struct: {
                     createAnalyser: AudioContext.prototype.createAnalyser,
-                    createOscillator: AudioContext.prototype.createOscillator,
+                    createOscillator: AudioContext.prototype.createOscillator
                 }
             },
             {

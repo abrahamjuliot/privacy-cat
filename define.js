@@ -36,10 +36,10 @@
         const { struct, settings } = response
         const { block, notify, permission } = settings
         //console.log(settings)
-        const { navProps, screenProps, webgl: { extension }, hash } = struct
+        const { navProps, screenProps, webgl: { extension }, canvasContext, canvasHash, hash } = struct
 
         // Log random fingerprint hash id
-        const title = `🐱Meow! Your fingerprint is randomized (hash id: ${hash})`
+        const title = `Fingerprint hash id: ${hash}`
         const entries = [
             ...Object.entries(navProps),
             ...Object.entries(screenProps)
@@ -50,6 +50,7 @@
             }
             const renderer = extension['37446'] ? extension['37446'] : actualWebglRenderer()
             console.log(`WebGLRenderer:`, renderer)
+            console.log(`Canvas:`, canvasHash)
         console.groupEnd()
 
         injectScript(/* js */`
@@ -64,6 +65,32 @@
                         getParameter.apply(this, arguments)
                     )
                 }
+            }
+            const canvasProto = HTMLCanvasElement.prototype
+            const getContext = HTMLCanvasElement.prototype.getContext
+            const toDataURL = HTMLCanvasElement.prototype.toDataURL
+            function canvasContextType(contextType, contextAttributes) {
+                canvasProto._contextType = contextType
+                return getContext.apply(this, arguments)
+            }
+            function randomCanvas() {
+                const { fillStyle, shadowColor, strokeStyle, font, widthOffset, heightOffset } = JSON.parse('${JSON.stringify(canvasContext)}') 
+                if (this._contextType == '2d') {
+                    const context = getContext.apply(this, ['2d'])
+                    context.textBaseline = 'top'
+                    context.textBaseline = 'alphabetic'
+                    context.fillStyle = fillStyle
+                    context.shadowColor = shadowColor
+                    context.strokeStyle = strokeStyle
+                    context.fillText('.', 4, 17)
+                    context.font = font
+                    return toDataURL.apply(this, arguments)
+                } else if (this._contextType == 'webgl') {
+                    this.width += widthOffset
+                    this.height += heightOffset
+                    return toDataURL.apply(this, arguments)
+                }
+                return toDataURL.apply(this, arguments)
             }
             // Detect Fingerprinting
             const post = (obj) => {
@@ -338,7 +365,8 @@
                 name: 'HTMLCanvasElement',
                 proto: true,
                 struct: {
-                    toDataURL: HTMLCanvasElement.prototype.toDataURL, // ? randomize
+                    getContext: canvasContext ? canvasContextType : HTMLCanvasElement.prototype.getContext, // ? randomize
+                    toDataURL: canvasContext ? randomCanvas : HTMLCanvasElement.prototype.toDataURL, // ? randomize
                     toBlob: HTMLCanvasElement.prototype.toBlob
                 }
             },

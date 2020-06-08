@@ -33,11 +33,11 @@ const first = (x) => document.querySelector(x)
 // Default Settings
 const settings = {
     randomize: {
-        time: 1,
+        time: 10,
         system: true,
         screens: true,
         gpu: true,
-        touch: true
+        canvasContext: true
     },
     block: {
         speech: false,
@@ -76,13 +76,13 @@ const configureSettings = () => {
             if (isMessage || isStorage) {
                 console.log(`Getting text from... message: ${isMessage}, storage: ${isStorage}`)
                 const struct = isMessage ? data.fingerprint.struct : data.struct
-                const { navProps, screenProps, webgl: { extension }, hash, timestamp } = struct
+                const { navProps, screenProps, webgl: { extension }, canvasHash, hash, timestamp } = struct
                 const { userAgent, deviceMemory: mem, hardwareConcurrency: cpu, maxTouchPoints: mtp } = navProps
                 const { availHeight: ah, availWidth: aw, colorDepth: cd, height: h, pixelDepth: pd, width: w } = screenProps
                 const ver = /Chrome\/(.*?)\./g.exec(userAgent)[1]
                 const os = /Windows|Linux|Mac/g.exec(userAgent)[0]
                 const gpu = extension == false ? gpuTitle(actualWebglRenderer()) : gpuTitle(extension['37446'])
-                const text = `${hash} [@${timestamp}]: Chrome ${ver} ${os}, memory: ${mem},  cpu: ${cpu}, ${gpu}, screen: ${aw}x${ah} of ${w}x${h}, pixels: ${pd}, color: ${cd}, touch: ${mtp}`
+                const text = `${hash} [@${timestamp}]: Chrome ${ver} ${os}, memory: ${mem},  cpu: ${cpu}, ${gpu}, screen: ${aw}x${ah} of ${w}x${h}, pixels: ${pd}, color: ${cd}, touch: ${mtp}, canvas: ${canvasHash}`
                 fingerprintEl.classList.remove('show')
                 fingerprintEl.classList.add('hide')
                 setTimeout(() => {
@@ -107,7 +107,7 @@ const configureSettings = () => {
                 systemEl: id('system'),
                 screensEl: id('screen'),
                 gpuEl: id('gpu'),
-                touchEl: id('touch')
+                canvasContextEl: id('canvasContext')
             },
             block: {
                 speechEl: id('speech'),
@@ -131,13 +131,13 @@ const configureSettings = () => {
 
         const setSettingsView = (elements, settings) => {
             const {
-                randomize: { time1El, time10El, time60El, time480El, systemEl, screensEl, gpuEl, touchEl },
+                randomize: { time1El, time10El, time60El, time480El, systemEl, screensEl, gpuEl, canvasContextEl },
                 block: { speechEl, pluginsEl, mimetypesEl, gamepadsEl, batteryEl, connectionEl, webrtcEl },
                 notify: { notifyEl },
                 permission: { canvasEl, audioEl, rectsEl, rtcpeerEl }
             } = elements
             const {
-                randomize: { time, system, screens, gpu, touch },
+                randomize: { time, system, screens, gpu, canvasContext },
                 block: { speech, plugins, mimetypes, gamepads, battery, connection, webrtc },
                 notify: { notification },
                 permission: { canvas, audio, rects, rtcpeer }
@@ -150,7 +150,7 @@ const configureSettings = () => {
             if (system == true) { systemEl.checked = true }
             if (screens == true) { screensEl.checked = true }
             if (gpu == true) { gpuEl.checked = true }
-            if (touch == true) { touchEl.checked = true }
+            if (canvasContext == true) { canvasContextEl.checked = true }
             // block
             if (speech == true) { speechEl.checked = true }
             if (plugins == true) { pluginsEl.checked = true }
@@ -172,7 +172,7 @@ const configureSettings = () => {
         const listenToSettings = (elements) => {
             const body = first('body')
             const {
-                randomize: { time1El, time10El, time60El, time480El, rebootEl, systemEl, screensEl, gpuEl, touchEl },
+                randomize: { time1El, time10El, time60El, time480El, rebootEl, systemEl, screensEl, gpuEl, canvasContextEl },
                 block: { speechEl, pluginsEl, mimetypesEl, gamepadsEl, batteryEl, connectionEl, webrtcEl },
                 notify: { notifyEl },
                 permission: { canvasEl, audioEl, rectsEl, rtcpeerEl }
@@ -199,7 +199,7 @@ const configureSettings = () => {
                 if (el == systemEl) { updateSync('randomize', 'system', systemEl.checked, true) }
                 if (el == screensEl) { updateSync('randomize', 'screens', screensEl.checked, true) }
                 if (el == gpuEl) { updateSync('randomize', 'gpu', gpuEl.checked, true) }
-                if (el == touchEl) { updateSync('randomize', 'touch', touchEl.checked, true) }
+                if (el == canvasContextEl) { updateSync('randomize', 'canvasContext', canvasContextEl.checked, true) }
                 if (el == speechEl) { updateSync('block', 'speech', speechEl.checked) }
                 if (el == pluginsEl) { updateSync('block', 'plugins', pluginsEl.checked) }
                 if (el == mimetypesEl) { updateSync('block', 'mimetypes', mimetypesEl.checked) }
@@ -233,10 +233,9 @@ const configureSettings = () => {
 }
 
 // Randomization Description
-const systemDescription = 'navigator.userAgent&#013navigator.appVersion&#013navigator.platform&#013navigator.hardwareConcurrency&#013navigator.deviceMemory'
+const systemDescription = 'navigator.userAgent&#013navigator.appVersion&#013navigator.platform&#013navigator.hardwareConcurrency&#013navigator.deviceMemory&#013navigator.maxTouchPoints'
 const screenDescription = 'screen.width&#013screen.height&#013screen.availWidth&#013screen.availHeight&#013screen.colorDepth&#013screen.pixelDepth'
-const webgelDescription = 'WebGLRenderingContext.getParameter'
-const touchDescription = 'navigator.maxTouchPoints'
+const webglDescription = 'WebGLRenderingContext.getParameter'
 const canvasDescription = 'HTMLCanvasElement.getContext&#013HTMLCanvasElement.toDataURL'
 // Block Description
 const speechDescription = 'speechSynthesis.getVoices'
@@ -386,9 +385,8 @@ const view = html/* html */`
         <strong>Randomize Fingerprint</strong>
         <label title="${systemDescription}"><input type="checkbox" id="system"><span>System</span></label>
         <label title="${screenDescription}"><input type="checkbox" id="screen"><span>Screen</span></label>
-        <label title="${webgelDescription}"><input type="checkbox" id="gpu"><span>GPU</span></label>
-        <label title="${touchDescription}"><input type="checkbox" id="touch"><span>Touch</span></label>
-        <label title="${canvasDescription}"><input type="checkbox" id="canvasData"><span>Canvas</span></label>
+        <label title="${webglDescription}"><input type="checkbox" id="gpu"><span>GPU</span></label>
+        <label title="${canvasDescription}"><input type="checkbox" id="canvasContext"><span>Canvas</span></label>
     </div>
   </section>
   <section id="special">

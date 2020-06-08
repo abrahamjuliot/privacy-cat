@@ -1,10 +1,10 @@
 const settings = {
     randomize: {
-        time: 1,
+        time: 10,
         system: true,
         screens: true,
         gpu: true,
-        touch: true
+        canvasContext: true
     },
     block: {
         speech: false,
@@ -26,15 +26,15 @@ const settings = {
     }
 }
 
-// const hashify = str => {
-//     const json = `${JSON.stringify(str)}`
-
-//     let i, len, hash = 0x811c9dc5
-//     for (i = 0, len = json.length; i < len; i++) {
-//         hash = Math.imul(31, hash) + json.charCodeAt(i) | 0
-//     }
-//     return ("0000000" + (hash >>> 0).toString(16)).substr(-8)
-// }
+//https://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript
+const hashMini = str => {
+    const json = `${JSON.stringify(str)}`
+    let i, len, hash = 0x811c9dc5
+    for (i = 0, len = json.length; i < len; i++) {
+        hash = Math.imul(31, hash) + json.charCodeAt(i) | 0
+    }
+    return ('0000000' + (hash >>> 0).toString(16)).substr(-8)
+}
 
 const hashify = async (x) => {
     const json = `${JSON.stringify(x)}`
@@ -49,15 +49,17 @@ const struct = {
     navProps: {},
     screenProps: {},
     webgl: {},
-    canvas: {},
+    canvasContext: {},
     timestamp: '',
+    canvasHash: '',
     hash: ''
 }
+
 const randomizify = (settings, getNewSettings = false) => {
     
     async function execute(settings) {
         // Settings
-        const { randomize: { system, screens, gpu, touch } } = settings
+        const { randomize: { system, screens, gpu, canvasContext } } = settings
 
         // Helpers
         const listRand = (list) => list[Math.floor(Math.random() * list.length)]
@@ -127,7 +129,7 @@ const randomizify = (settings, getNewSettings = false) => {
             const touchOS = (/^(Windows(|\sPhone)|CrOS|Android|iOS)$/ig.test(os))
             return touchOS
         }
-        struct.navProps.maxTouchPoints = !touch ? navigator.maxTouchPoints : canLieTouch() ? rand(1, 10) : navigator.maxTouchPoints
+        struct.navProps.maxTouchPoints = !system ? navigator.maxTouchPoints : canLieTouch() ? rand(1, 10) : navigator.maxTouchPoints
         struct.navProps.hardwareConcurrency = !system ? navigator.hardwareConcurrency : rand(1, 16)
         struct.navProps.deviceMemory = !system ? navigator.deviceMemory : evenRand(2, 32)
 
@@ -263,8 +265,31 @@ const randomizify = (settings, getNewSettings = false) => {
             extension: !gpu ? false : webglRenderer()
         }
 
+        // canvasContext
+        function randomRGBA() {
+            const clr = () => Math.round(Math.random() * 255)
+            return `rgba(${clr()},${clr()},${clr()},${Math.random().toFixed(1)})`
+        }
+        function randomFont() {
+            const fontFamily = [
+                'Arial', 'Arial Black', 'Arial Narrow', 'Courier', 'Courier New', 'Georgia', 'Helvetica',
+                'Impact', 'Lucida Console', 'monospace', 'Tahoma', 'Times', 'Times New Roman', 'Verdana'
+            ]
+            const fontSize = Math.floor((Math.random() * 100) + 12)
+            const rand = Math.floor(Math.random() * fontFamily.length)
+            return `${fontSize}px '${fontFamily[rand]}'`
+        } 
+        const fillStyle = randomRGBA()
+        const shadowColor = randomRGBA()
+        const strokeStyle = randomRGBA()
+        const font = randomFont()
+        const widthOffset = rand(-10, 10)
+        const heightOffset = rand(-10, 10)
+        struct.canvasContext = canvasContext? { fillStyle, shadowColor, strokeStyle, font, widthOffset, heightOffset } : false
+
         // create hash
-        struct.hash = await hashify({...struct.navProps, ...struct.screenProps, ...struct.webgl, ...struct.canvas})
+        struct.canvasHash = hashMini(struct.canvasContext)
+        struct.hash = await hashify({...struct.navProps, ...struct.screenProps, ...struct.webgl, ...struct.canvasContext })
 
         // timestamp
         struct.timestamp = new Date().toLocaleTimeString()

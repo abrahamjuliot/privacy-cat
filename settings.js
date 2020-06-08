@@ -82,7 +82,7 @@ const configureSettings = () => {
                 const ver = /Chrome\/(.*?)\./g.exec(userAgent)[1]
                 const os = /Windows|Linux|Mac/g.exec(userAgent)[0]
                 const gpu = extension == false ? gpuTitle(actualWebglRenderer()) : gpuTitle(extension['37446'])
-                const text = `${hash} [@${timestamp}]: Chrome ${ver} ${os}, memory: ${mem},  cpu: ${cpu}, ${gpu}, screen: ${aw}x${ah} of ${w}x${h}, pixels: ${pd}, color: ${cd}, touch: ${mtp}, canvas: ${canvasHash}`
+                const text = `${hash} [@${timestamp}]: Chrome ${ver} ${os}, memory: ${mem}, cpu: ${cpu}, ${gpu}, screen: ${aw}x${ah} of ${w}x${h}, pixels: ${pd}, color: ${cd}, touch: ${mtp}, canvas: ${canvasHash}`
                 fingerprintEl.classList.remove('show')
                 fingerprintEl.classList.add('hide')
                 setTimeout(() => {

@@ -5,3 +5,13 @@
 - console (remove or optional)
 - extension/tab data: props read and excessive (modal)
 - Explian in  5 words how items can fingerprint you
+- pointinpath
+- webgl props feature detect
+- audio props feature detect
+
+- navigator beacon
+- remove navigator.brave.isBrave
+
+// The idea of using... to...is borrowed from... [and link] (aopr, fp2, trace)
+
+https://github.com/gorhill/uMatrix/blob/master/src/js/contentscript-no-workers.js

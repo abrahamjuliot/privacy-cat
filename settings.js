@@ -346,12 +346,7 @@ const view = html/* html */`
         background: rgb(239, 239, 239);
     }
     #reboot:hover {
-        background: #aaaaaa5c;
-        box-shadow: 0px 1px 1px 1px #8079793d, 0px 1px 4px 3px #8079790f;
-        transition: background 0.3s ease;
-    }
-    #reboot:not(:hover) {
-        transition: background 0.3s ease;
+        box-shadow: 0px 1px 1px 0px #80797963, 0px 2px 2px 2px #8079790f, 0px 1px 2px 2px #8079790f;
     }
     #fingerprint {
         word-wrap: break-word;
@@ -400,6 +395,7 @@ const view = html/* html */`
         <label title="${batteryDescription}"><input type="checkbox" id="battery"><span>Battery</span></label>
         <label title="${connectionDescription}"><input type="checkbox" id="connection"><span>Connection</span></label>
         <label title="${webrtcDescription}"><input type="checkbox" id="webrtc"><span>WebRTC</span></label>
+        
     </div>
     <div class="permission-section">
         <strong>Notify Fingerprinting</strong>

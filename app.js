@@ -363,7 +363,7 @@ const reboot = () => {
 
 reboot()
 
-const chromeNotification = (title, message, iconUrl = 'icon48.png') => {
+const chromeNotification = (title, message, iconUrl = 'privacycat128.png') => {
     return chrome.notifications.create('', {
         title,
         message,

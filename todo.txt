@@ -10,7 +10,6 @@
 - audio props feature detect
 
 - navigator beacon
-- remove navigator.brave.isBrave
 
 // The idea of using... to...is borrowed from... [and link] (aopr, fp2, trace)
 

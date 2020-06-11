@@ -4,7 +4,8 @@ const settings = {
         system: true,
         screens: true,
         gpu: true,
-        canvasContext: true
+        canvasContext: true,
+        clientRects: true
     },
     block: {
         speech: false,
@@ -50,8 +51,10 @@ const struct = {
     screenProps: {},
     webgl: {},
     canvasContext: {},
+    clientRects: {},
     timestamp: '',
     canvasHash: '',
+    rectsHash: '',
     hash: ''
 }
 
@@ -59,7 +62,7 @@ const randomizify = (settings, getNewSettings = false) => {
     
     async function execute(settings) {
         // Settings
-        const { randomize: { system, screens, gpu, canvasContext } } = settings
+        const { randomize: { system, screens, gpu, canvasContext, clientRects } } = settings
 
         // Helpers
         const listRand = (list) => list[Math.floor(Math.random() * list.length)]
@@ -286,9 +289,30 @@ const randomizify = (settings, getNewSettings = false) => {
         const heightOffset = rand(-10, 10)
         struct.canvasContext = canvasContext ? { fillStyle, shadowColor, strokeStyle, font, widthOffset, heightOffset } : false
 
-        // create hash
+        // clientRects
+        const getRandomOffset = () => Math.floor(Math.random()*100)/100
+        const offset = {
+            bottom: getRandomOffset(),
+            height: getRandomOffset(),
+            left: getRandomOffset(),
+            right: getRandomOffset(),
+            top: getRandomOffset(),
+            width: getRandomOffset(),
+            x: getRandomOffset(),
+            y: getRandomOffset()
+        }
+        struct.clientRects = clientRects ? { ...offset } : false
+
+        // create hashes
+        struct.rectsHash = hashMini(struct.clientRects)
         struct.canvasHash = hashMini(struct.canvasContext)
-        struct.hash = await hashify({...struct.navProps, ...struct.screenProps, ...struct.webgl, ...struct.canvasContext })
+        struct.hash = await hashify({
+            ...struct.navProps,
+            ...struct.screenProps,
+            ...struct.webgl,
+            ...struct.canvasContext,
+            ...struct.clientRects
+        })
 
         // timestamp
         struct.timestamp = new Date().toLocaleTimeString()

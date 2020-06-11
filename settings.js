@@ -37,7 +37,8 @@ const settings = {
         system: true,
         screens: true,
         gpu: true,
-        canvasContext: true
+        canvasContext: true,
+        clientRects: true
     },
     block: {
         speech: false,
@@ -59,7 +60,6 @@ const settings = {
     }
 }
 
-//const removeExtraSpaces = (x) => x.replace(/\s{2,}/g, ' ')
 const actualWebglRenderer = () => {
     const context = document.createElement('canvas').getContext('webgl')
     const extension = context.getExtension('WEBGL_debug_renderer_info')
@@ -74,15 +74,15 @@ const configureSettings = () => {
             const isMessage = data.fingerprint != undefined
             const isStorage = data.struct != undefined
             if (isMessage || isStorage) {
-                console.log(`Getting text from... message: ${isMessage}, storage: ${isStorage}`)
+                console.log(`Getting data from... message: ${isMessage}, storage: ${isStorage}`)
                 const struct = isMessage ? data.fingerprint.struct : data.struct
-                const { navProps, screenProps, webgl: { extension }, canvasHash, hash, timestamp } = struct
+                const { navProps, screenProps, webgl: { extension }, canvasHash, rectsHash, hash, timestamp } = struct
                 const { userAgent, deviceMemory: mem, hardwareConcurrency: cpu, maxTouchPoints: mtp } = navProps
                 const { availHeight: ah, availWidth: aw, colorDepth: cd, height: h, pixelDepth: pd, width: w } = screenProps
                 const ver = /Chrome\/(.*?)\./g.exec(userAgent)[1]
                 const os = /Windows|Linux|Mac/g.exec(userAgent)[0]
                 const gpu = extension == false ? gpuTitle(actualWebglRenderer()) : gpuTitle(extension['37446'])
-                const text = `${hash} [@${timestamp}]: Chrome ${ver} ${os}, memory: ${mem}, cpu: ${cpu}, ${gpu}, screen: ${aw}x${ah} of ${w}x${h}, pixels: ${pd}, color: ${cd}, touch: ${mtp}, canvas: ${canvasHash}`
+                const text = `${hash} [@${timestamp}]: Chrome ${ver} ${os}, memory: ${mem}, cpu: ${cpu}, ${gpu}, screen: ${aw}x${ah} of ${w}x${h}, pixels: ${pd}, color: ${cd}, touch: ${mtp}, canvas: ${canvasHash}, clientRects: ${rectsHash}`
                 fingerprintEl.classList.remove('show')
                 fingerprintEl.classList.add('hide')
                 setTimeout(() => {
@@ -107,7 +107,8 @@ const configureSettings = () => {
                 systemEl: id('system'),
                 screensEl: id('screen'),
                 gpuEl: id('gpu'),
-                canvasContextEl: id('canvasContext')
+                canvasContextEl: id('canvasContext'),
+                clientRectsEl: id('clientRects')
             },
             block: {
                 speechEl: id('speech'),
@@ -131,13 +132,13 @@ const configureSettings = () => {
 
         const setSettingsView = (elements, settings) => {
             const {
-                randomize: { time1El, time10El, time60El, time480El, systemEl, screensEl, gpuEl, canvasContextEl },
+                randomize: { time1El, time10El, time60El, time480El, systemEl, screensEl, gpuEl, canvasContextEl, clientRectsEl },
                 block: { speechEl, pluginsEl, mimetypesEl, gamepadsEl, batteryEl, connectionEl, webrtcEl },
                 notify: { notifyEl },
                 permission: { canvasEl, audioEl, rectsEl, rtcpeerEl }
             } = elements
             const {
-                randomize: { time, system, screens, gpu, canvasContext },
+                randomize: { time, system, screens, gpu, canvasContext, clientRects },
                 block: { speech, plugins, mimetypes, gamepads, battery, connection, webrtc },
                 notify: { notification },
                 permission: { canvas, audio, rects, rtcpeer }
@@ -151,6 +152,7 @@ const configureSettings = () => {
             if (screens == true) { screensEl.checked = true }
             if (gpu == true) { gpuEl.checked = true }
             if (canvasContext == true) { canvasContextEl.checked = true }
+            if (clientRects == true) { clientRectsEl.checked = true }
             // block
             if (speech == true) { speechEl.checked = true }
             if (plugins == true) { pluginsEl.checked = true }
@@ -172,7 +174,7 @@ const configureSettings = () => {
         const listenToSettings = (elements) => {
             const body = first('body')
             const {
-                randomize: { time1El, time10El, time60El, time480El, rebootEl, systemEl, screensEl, gpuEl, canvasContextEl },
+                randomize: { time1El, time10El, time60El, time480El, rebootEl, systemEl, screensEl, gpuEl, canvasContextEl, clientRectsEl },
                 block: { speechEl, pluginsEl, mimetypesEl, gamepadsEl, batteryEl, connectionEl, webrtcEl },
                 notify: { notifyEl },
                 permission: { canvasEl, audioEl, rectsEl, rtcpeerEl }
@@ -200,6 +202,7 @@ const configureSettings = () => {
                 if (el == screensEl) { updateSync('randomize', 'screens', screensEl.checked, true) }
                 if (el == gpuEl) { updateSync('randomize', 'gpu', gpuEl.checked, true) }
                 if (el == canvasContextEl) { updateSync('randomize', 'canvasContext', canvasContextEl.checked, true) }
+                if (el == clientRectsEl) { updateSync('randomize', 'clientRects', clientRectsEl.checked, true) }
                 if (el == speechEl) { updateSync('block', 'speech', speechEl.checked) }
                 if (el == pluginsEl) { updateSync('block', 'plugins', pluginsEl.checked) }
                 if (el == mimetypesEl) { updateSync('block', 'mimetypes', mimetypesEl.checked) }
@@ -237,6 +240,7 @@ const systemDescription = 'navigator.userAgent&#013navigator.appVersion&#013navi
 const screenDescription = 'screen.width&#013screen.height&#013screen.availWidth&#013screen.availHeight&#013screen.colorDepth&#013screen.pixelDepth'
 const webglDescription = 'WebGLRenderingContext.getParameter'
 const canvasDescription = 'HTMLCanvasElement.getContext&#013CanvasRenderingContext2D&#013WebGLRenderingContext&#013CanvasRenderingContext2D.getImageData&#013HTMLCanvasElement.toDataURL&#013HTMLCanvasElement.toBlob'
+const clientRectsDescription = 'Element.prototype.getClientRects&#013Element.prototype.getBoundingClientRect&#013Range.prototype.getClientRects&#013Range.prototype.getBoundingClientRect'
 // Block Description
 const speechDescription = 'speechSynthesis.getVoices'
 const pluginsDescription = 'navigator.plugins'
@@ -248,7 +252,7 @@ const webrtcDescription = 'RTCPeerConnection.createDataChannel&#013RTCPeerConnec
 // Permission Description
 const canvasToDataURL = 'HTMLCanvasElement.toDataURL&#013HTMLCanvasElement.toBlob'
 const audioChannelData = 'AudioBuffer.getChannelData'
-const clientRects = '[Range|Element].getClientRects'
+const rects = '[Range|Element].getClientRects'
 const webtrcDataChannel = 'RTCPeerConnection.createDataChannel'
 // HTML View
 const view = html/* html */`
@@ -358,12 +362,23 @@ const view = html/* html */`
         padding: 10px 20px;
         border-radius: 2px;
         background: #fff;
-        transition: opacity 0.3s, height 0.3s;
+        animation: drop 0.3s 0.2s ease both;
+        transition: opacity 0.3s ease, height 0.3s ease;
     }
     #fingerprint:after {
         display: block;
         content: ''attr(data-fingerprint)'';
         white-space: pre-wrap;
+    }
+    @keyframes drop {
+        0%, 60% {
+            transform: translate(0, -5px);
+            visibility: hidden;
+        }
+        100% {
+            transform: translate(0);
+            visibility: initial;
+        }
     } 
   </style>
   <div id="fingerprint"></div>
@@ -382,6 +397,7 @@ const view = html/* html */`
         <label title="${screenDescription}"><input type="checkbox" id="screen"><span>Screen</span></label>
         <label title="${webglDescription}"><input type="checkbox" id="gpu"><span>GPU</span></label>
         <label title="${canvasDescription}"><input type="checkbox" id="canvasContext"><span>Canvas</span></label>
+        <label title="${clientRectsDescription}"><input type="checkbox" id="clientRects"><span>Rects</span></label>
     </div>
   </section>
   <section id="special">
@@ -404,11 +420,9 @@ const view = html/* html */`
         <span>Pauses script execution</span>
         <label title="${canvasToDataURL}"><input type="checkbox" id="canvas"><span>Canvas</span></label>
         <label title="${audioChannelData}"><input type="checkbox" id="audio"><span>Audio</span></label>
-        <label title="${clientRects}"><input type="checkbox" id="rects"><span>Rects</span></label>
+        <label title="${rects}"><input type="checkbox" id="rects"><span>Rects</span></label>
         <label title="${webtrcDataChannel}"><input type="checkbox" id="rtcpeer"><span>WebRTC</span></label>
     </div>
   </section>
 `
 patch(id('app'), view, configureSettings)
-
-//uniquely identify your browser and track your internet activity without your consent. 

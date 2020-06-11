@@ -37,7 +37,16 @@
         const { struct, settings } = response
         const { block, notify, permission } = settings
         //console.log(settings)
-        const { navProps, screenProps, webgl: { extension }, canvasContext, canvasHash, hash } = struct
+        const {
+            navProps,
+            screenProps,
+            webgl: { extension },
+            canvasContext,
+            clientRects,
+            canvasHash,
+            rectsHash,
+            hash
+        } = struct
 
         // Log random fingerprint hash id
         const title = `Fingerprint hash id: ${hash}`
@@ -52,6 +61,7 @@
             const renderer = extension['37446'] ? extension['37446'] : actualWebglRenderer()
             console.log(`WebGLRenderer:`, renderer)
             console.log(`Canvas:`, canvasHash)
+            console.log(`Rects:`, rectsHash)
         console.groupEnd()
 
         // https://stackoverflow.com/questions/9515704/insert-code-into-the-page-context-using-a-content-script
@@ -59,6 +69,8 @@
         injectScript(/* js */`
         (function() {
             // client side computation
+
+            // webgl
             function webgl(extension) {
                 const getParameter = WebGLRenderingContext.prototype.getParameter
                 return function (x) {
@@ -69,6 +81,8 @@
                     )
                 }
             }
+
+            // canvas
             const canvasContext = JSON.parse('${JSON.stringify(canvasContext)}')
             const canvasProto = HTMLCanvasElement.prototype
             const getContext = HTMLCanvasElement.prototype.getContext
@@ -122,11 +136,52 @@
                 const context = randomizeContext2D(this)
                 return getImageData.apply(context, arguments)
             }
+
+            // clientRects
+            const offset = JSON.parse('${JSON.stringify(clientRects)}')
+            const clientRects = offset ? true: false // detect setting
+            const elementGetClientRects = Element.prototype.getClientRects
+            const elementGetBoundingClientRect = Element.prototype.getBoundingClientRect
+            const rangeGetClientRects = Range.prototype.getClientRects
+            const rangeGetBoundingClientRect = Range.prototype.getBoundingClientRect
+            const randomClient = type => {
+                const method = (
+                    type == 'rangeRects' ? rangeGetClientRects :
+                    type == 'rangeBounding' ? rangeGetBoundingClientRect :
+                    type == 'elementRects' ? elementGetClientRects :
+                    type == 'elementBounding' ? elementGetBoundingClientRect : ''
+                )
+                const domRectify = (client) => {
+                    const props = [ 'bottom', 'height', 'left', 'right', 'top', 'width', 'x', 'y' ]
+                    if (client.length) {
+                        let i, len = client.length
+                        for (i = 0; i < len; i++) {
+                            client[i][props[0]] += offset[props[0]]
+                            client[i][props[1]] += offset[props[1]]
+                            client[i][props[2]] += offset[props[2]]
+                            client[i][props[3]] += offset[props[3]]
+                            client[i][props[4]] += offset[props[4]]
+                            client[i][props[5]] += offset[props[5]]
+                            client[i][props[6]] += offset[props[6]]
+                            client[i][props[7]] += offset[props[7]]
+                        }
+                        return client
+                    }
+                    props.forEach(prop => { client[prop] += offset[prop] })
+                    return client
+                }
+                return function () {
+                    const client = method.apply(this, arguments)
+                    return domRectify(client)
+                }
+            }
+
             // Detect Fingerprinting
             const post = (obj) => {
                 obj.src = 'ondicjclhhjndhdkpagjhhfdjbpokfhe'
                 window.postMessage(obj, '*')
             }
+            // Property API and Fingerprint Rank
             const propAPI = {
                 appVersion: ['navigator.appVersion', 1],
                 deviceMemory: ['navigator.deviceMemory', 1],
@@ -204,9 +259,9 @@
             const itemInList = (list, item) => list.indexOf(item) > -1
             let listenForExcessivePropReads = true
             let rankCounter = 0
-            const warningRank = 14
-            const propsRead = []
-            const propsReadAll = {}
+            const warningRank = 14 // total rank that triggers fingerprint dtected warning
+            const propsRead = [] // collect each property read
+            const propsReadAll = {} // collects how many times each property is read
             const fingerprintScripts = []
             const scripts = []
             const { canvas, audio, rtcpeer, rects } = JSON.parse('${JSON.stringify(permission)}')
@@ -246,16 +301,19 @@
                     rankCounter += fpRank
                     propsRead.push(propDescription)
                 }
+
                 // Detect excessive prop reads and warn
                 const excessivePropReadsDetected = rankCounter >= warningRank
                 if (listenForExcessivePropReads && excessivePropReadsDetected) {
                     console.warn('Excessive property reads detected!', propsReadAll, scripts)
                     listenForExcessivePropReads = false
                 }
+
                 // if the script is not yet in the traced scripts collection, add it
                 if (!tracedScript) {
                     scripts.push({ url, fpRank, reads: [propDescription], all: { [propDescription]: 1 }, creep: false })
                 }
+
                 // else if this is not the first time the prop was read (in this previously traced script)
                 else if (!itemInList(tracedScript.reads, propDescription)) {
                     tracedScript.fpRank += fpRank // increase the rank (update only on first prop read)
@@ -372,16 +430,16 @@
                 name: 'Element',
                 proto: true,
                 struct: {
-                    getBoundingClientRect: Element.prototype.getBoundingClientRect,
-                    getClientRects: Element.prototype.getClientRects
+                    getBoundingClientRect: clientRects ? randomClient('elementBounding') : Element.prototype.getBoundingClientRect, // ? randomize
+                    getClientRects: clientRects ? randomClient('elementRects') : Element.prototype.getClientRects // ? randomize
                 }
             },
             {
                 name: 'Range',
                 proto: true,
                 struct: {
-                    getBoundingClientRect: Range.prototype.getBoundingClientRect,
-                    getClientRects: Range.prototype.getClientRects
+                    getBoundingClientRect: clientRects ? randomClient('rangeBounding') : Range.prototype.getBoundingClientRect, // ? randomize
+                    getClientRects: clientRects ? randomClient('rangeRects') : Range.prototype.getClientRects // ? randomize
                 }
             },
             {

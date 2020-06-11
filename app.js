@@ -117,6 +117,8 @@ const randomizify = (settings, getNewSettings = false) => {
         )
 
         // Device Touch, Hardware, and Memory
+        // The idea of detecting OS has lied (or detecting if OS can lie) is inspired by Fingerprintjs2
+        // https://github.com/Valve/fingerprintjs2/blob/master/fingerprint2.js#L1125
         function canLieTouch() {
             const userAgent = !system ? navigator.userAgent : struct.navProps.userAgent
             const os = (
@@ -169,7 +171,9 @@ const randomizify = (settings, getNewSettings = false) => {
         struct.screenProps = !screens ? actualScreen : randomScreen()
 
         // Device GPU
-        //https://www.primegrid.com/gpu_list.php
+        // https://www.primegrid.com/gpu_list.php
+        // The idea of randomizing the renderer is inspired by Trace
+        // https://github.com/jake-cryptic/AbsoluteDoubleTrace/blob/master/MyTrace/js/contentscript/page.js#L1087
         const webglRenderer = () => {
             const macRenderers = [{
                 gpu: 'AMD Radeon',
@@ -290,6 +294,8 @@ const randomizify = (settings, getNewSettings = false) => {
         struct.canvasContext = canvasContext ? { fillStyle, shadowColor, strokeStyle, font, widthOffset, heightOffset } : false
 
         // clientRects
+        // The idea of randomizing the DOMRect with fractional offsets is inspired by Trace
+        // https://github.com/jake-cryptic/AbsoluteDoubleTrace/blob/master/MyTrace/js/contentscript/page.js#L496
         const getRandomOffset = () => Math.floor(Math.random()*100)/100
         const offset = {
             bottom: getRandomOffset(),

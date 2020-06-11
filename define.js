@@ -289,6 +289,8 @@
                         +'and track your internet activity without your consent. '
                         +'OK to allow or Cancel to abort.'
                     )
+                    // Throwing a random error to abort on property read is inspired by uBlock Origin's aopr
+                    // https://github.com/gorhill/uBlock/blob/a94df7f3b27080ae2dcb3b914ace39c0c294d2f6/assets/resources/scriptlets.js#L96
                     if (!confirm(permitMessage)) { throw new ReferenceError(randomMessage) }
                     else { permitToRead[prop] = true } // permit additional reads
                 }
@@ -520,6 +522,14 @@
                 Object.defineProperties(root.navigator.mediaDevices, definify(mediaDeviceProps))
             }
             redefine(window)
+
+            // catch iframes on dom loaded
+            const domLoaded = (fn) => document.readyState != 'loading'?
+                fn(): document.addEventListener('DOMContentLoaded', fn)
+            domLoaded(() => {
+                ;[...document.getElementsByTagName('iframe')].forEach(frame => redefine(frame.contentWindow))	
+            })
+
         })()
         `)
         return

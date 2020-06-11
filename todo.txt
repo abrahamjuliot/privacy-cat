@@ -17,7 +17,7 @@
 Resources:
 - https://arxiv.org/pdf/1905.01051.pdf
 
-
+https://medium.com/@galmeiri/get-ready-for-chrome-user-agent-string-phase-out-c6840da1c31e
 https://github.com/gorhill/uMatrix/blob/master/src/js/contentscript-no-workers.js
 
 navigator.userAgentData.getHighEntropyValues([

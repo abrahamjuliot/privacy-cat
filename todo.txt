@@ -11,6 +11,8 @@
 
 - navigator beacon
 
+Resources:
+- https://arxiv.org/pdf/1905.01051.pdf
 
 
 https://github.com/gorhill/uMatrix/blob/master/src/js/contentscript-no-workers.js

@@ -8,7 +8,7 @@
 - pointinpath
 - webgl props feature detect
 - audio props feature detect
-
+- performance.memory + console.memory
 - navigator beacon
 
 Resources:

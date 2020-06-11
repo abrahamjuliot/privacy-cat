@@ -10,6 +10,8 @@
 - audio props feature detect
 - performance.memory + console.memory
 - navigator beacon
+- userAgentData
+- keep userAgent seprate from hardware
 
 Resources:
 - https://arxiv.org/pdf/1905.01051.pdf

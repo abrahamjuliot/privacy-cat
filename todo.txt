@@ -11,6 +11,7 @@
 - performance.memory + console.memory
 - navigator beacon
 - userAgentData
+- navigator.userAgentData.getHighEntropyValues()
 - keep userAgent seprate from hardware
 
 Resources:

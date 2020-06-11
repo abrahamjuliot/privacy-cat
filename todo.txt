@@ -19,3 +19,11 @@ Resources:
 
 
 https://github.com/gorhill/uMatrix/blob/master/src/js/contentscript-no-workers.js
+
+navigator.userAgentData.getHighEntropyValues([
+ "platform",
+ "platformVersion",
+ "architecture",
+ "model",
+ "uaFullVersion"
+]).then(res => console.log(res));

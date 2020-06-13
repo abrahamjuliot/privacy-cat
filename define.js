@@ -182,6 +182,10 @@
                 window.postMessage(obj, '*')
             }
             // Property API and Fingerprint Rank
+            // Thie idea of detecting fingerprinting is inspired by:
+            // - nicoandmee https://gist.github.com/nicoandmee/62ecd1829d761fbed779dc3a3ba35c64
+            // - privacypossum https://github.com/cowlicks/privacypossum/blob/master/src/js/contentscripts/fingercounting.js
+            // - tracker-radar-collector https://github.com/duckduckgo/tracker-radar-collector/blob/master/collectors/APICalls/breakpoints.js
             const propAPI = {
                 appVersion: ['navigator.appVersion', 1],
                 deviceMemory: ['navigator.deviceMemory', 1],

@@ -296,18 +296,9 @@ const randomizify = (settings, getNewSettings = false) => {
         // clientRects
         // The idea of randomizing the DOMRect with fractional offsets is inspired by Trace
         // https://github.com/jake-cryptic/AbsoluteDoubleTrace/blob/master/MyTrace/js/contentscript/page.js#L496
-        const getRandomOffset = () => Math.floor(Math.random()*100)/100
-        const offset = {
-            bottom: getRandomOffset(),
-            height: getRandomOffset(),
-            left: getRandomOffset(),
-            right: getRandomOffset(),
-            top: getRandomOffset(),
-            width: getRandomOffset(),
-            x: getRandomOffset(),
-            y: getRandomOffset()
-        }
-        struct.clientRects = clientRects ? { ...offset } : false
+        const computedOffset = rand(10, 99)
+
+        struct.clientRects = clientRects ? { computedOffset } : false
 
         // create hashes
         struct.rectsHash = hashMini(struct.clientRects)

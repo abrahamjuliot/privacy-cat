@@ -138,13 +138,30 @@
             }
 
             // clientRects
-            const offset = JSON.parse('${JSON.stringify(clientRects)}')
-            const clientRects = offset ? true: false // detect setting
+            const { computedOffset } = JSON.parse('${JSON.stringify(clientRects)}')
+            const clientRects = computedOffset ? true : false // detect setting
             const elementGetClientRects = Element.prototype.getClientRects
             const elementGetBoundingClientRect = Element.prototype.getBoundingClientRect
             const rangeGetClientRects = Range.prototype.getClientRects
             const rangeGetBoundingClientRect = Range.prototype.getBoundingClientRect
             const randomClient = type => {
+                
+                const tryRandomNumber = (num, computedOffset) => {
+                    const shouldLieNumber = num => {
+                        const decimals = num.toString().split('.')[1]
+                        return decimals && decimals.length > 10 ? true : false
+                    }
+                    if (shouldLieNumber(num)) {
+                        const str = ''+num
+                        const offset = ''+computedOffset
+                        const randomizedNumber = +(
+                            str.slice(0, -3) + offset + str.slice(-1)
+                        )
+                        return randomizedNumber
+                    }
+                    return num
+                }
+
                 const method = (
                     type == 'rangeRects' ? rangeGetClientRects :
                     type == 'rangeBounding' ? rangeGetBoundingClientRect :
@@ -156,18 +173,18 @@
                     if (client.length) {
                         let i, len = client.length
                         for (i = 0; i < len; i++) {
-                            client[i][props[0]] += offset[props[0]]
-                            client[i][props[1]] += offset[props[1]]
-                            client[i][props[2]] += offset[props[2]]
-                            client[i][props[3]] += offset[props[3]]
-                            client[i][props[4]] += offset[props[4]]
-                            client[i][props[5]] += offset[props[5]]
-                            client[i][props[6]] += offset[props[6]]
-                            client[i][props[7]] += offset[props[7]]
+                            client[i][props[0]] = tryRandomNumber(client[i][props[0]], computedOffset)
+                            client[i][props[1]] = tryRandomNumber(client[i][props[1]], computedOffset)
+                            client[i][props[2]] = tryRandomNumber(client[i][props[2]], computedOffset)
+                            client[i][props[3]] = tryRandomNumber(client[i][props[3]], computedOffset)
+                            client[i][props[4]] = tryRandomNumber(client[i][props[4]], computedOffset)
+                            client[i][props[5]] = tryRandomNumber(client[i][props[5]], computedOffset)
+                            client[i][props[6]] = tryRandomNumber(client[i][props[6]], computedOffset)
+                            client[i][props[7]] = tryRandomNumber(client[i][props[7]], computedOffset)
                         }
                         return client
                     }
-                    props.forEach(prop => { client[prop] += offset[prop] })
+                    props.forEach(prop => { client[prop] = tryRandomNumber(client[prop], computedOffset) })
                     return client
                 }
                 return function () {

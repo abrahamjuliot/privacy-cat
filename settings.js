@@ -38,7 +38,8 @@ const settings = {
         screens: true,
         gpu: true,
         canvasContext: true,
-        clientRects: true
+        clientRects: true,
+        audioData: true
     },
     block: {
         speech: false,
@@ -76,13 +77,13 @@ const configureSettings = () => {
             if (isMessage || isStorage) {
                 console.log(`Getting data from... message: ${isMessage}, storage: ${isStorage}`)
                 const struct = isMessage ? data.fingerprint.struct : data.struct
-                const { navProps, screenProps, webgl: { extension }, canvasHash, rectsHash, hash, timestamp } = struct
+                const { navProps, screenProps, webgl: { extension }, canvasHash, rectsHash, audioHash, hash, timestamp } = struct
                 const { userAgent, deviceMemory: mem, hardwareConcurrency: cpu, maxTouchPoints: mtp } = navProps
                 const { availHeight: ah, availWidth: aw, colorDepth: cd, height: h, pixelDepth: pd, width: w } = screenProps
                 const ver = /Chrome\/(.*?)\./g.exec(userAgent)[1]
                 const os = /Windows|Linux|Mac/g.exec(userAgent)[0]
                 const gpu = extension == false ? gpuTitle(actualWebglRenderer()) : gpuTitle(extension['37446'])
-                const text = `${hash} [@${timestamp}]: Chrome ${ver} ${os}, memory: ${mem}, cpu: ${cpu}, ${gpu}, screen: ${aw}x${ah} of ${w}x${h}, pixels: ${pd}, color: ${cd}, touch: ${mtp}, canvas: ${canvasHash}, clientRects: ${rectsHash}`
+                const text = `${hash} [@${timestamp}]: Chrome ${ver} ${os}, memory: ${mem}, cpu: ${cpu}, ${gpu}, screen: ${aw}x${ah} of ${w}x${h}, pixels: ${pd}, color: ${cd}, touch: ${mtp}, canvas: ${canvasHash}, rects: ${rectsHash}, audio: ${audioHash}`
                 fingerprintEl.classList.remove('show')
                 fingerprintEl.classList.add('hide')
                 setTimeout(() => {
@@ -108,7 +109,8 @@ const configureSettings = () => {
                 screensEl: id('screen'),
                 gpuEl: id('gpu'),
                 canvasContextEl: id('canvasContext'),
-                clientRectsEl: id('clientRects')
+                clientRectsEl: id('clientRects'),
+                audioDataEl: id('audioData')
             },
             block: {
                 speechEl: id('speech'),
@@ -132,13 +134,13 @@ const configureSettings = () => {
 
         const setSettingsView = (elements, settings) => {
             const {
-                randomize: { time1El, time10El, time60El, time480El, systemEl, screensEl, gpuEl, canvasContextEl, clientRectsEl },
+                randomize: { time1El, time10El, time60El, time480El, systemEl, screensEl, gpuEl, canvasContextEl, clientRectsEl, audioDataEl },
                 block: { speechEl, pluginsEl, mimetypesEl, gamepadsEl, batteryEl, connectionEl, webrtcEl },
                 notify: { notifyEl },
                 permission: { canvasEl, audioEl, rectsEl, rtcpeerEl }
             } = elements
             const {
-                randomize: { time, system, screens, gpu, canvasContext, clientRects },
+                randomize: { time, system, screens, gpu, canvasContext, clientRects, audioData },
                 block: { speech, plugins, mimetypes, gamepads, battery, connection, webrtc },
                 notify: { notification },
                 permission: { canvas, audio, rects, rtcpeer }
@@ -153,6 +155,7 @@ const configureSettings = () => {
             if (gpu == true) { gpuEl.checked = true }
             if (canvasContext == true) { canvasContextEl.checked = true }
             if (clientRects == true) { clientRectsEl.checked = true }
+            if (audioData == true) { audioDataEl.checked = true }
             // block
             if (speech == true) { speechEl.checked = true }
             if (plugins == true) { pluginsEl.checked = true }
@@ -174,7 +177,7 @@ const configureSettings = () => {
         const listenToSettings = (elements) => {
             const body = first('body')
             const {
-                randomize: { time1El, time10El, time60El, time480El, rebootEl, systemEl, screensEl, gpuEl, canvasContextEl, clientRectsEl },
+                randomize: { time1El, time10El, time60El, time480El, rebootEl, systemEl, screensEl, gpuEl, canvasContextEl, clientRectsEl, audioDataEl },
                 block: { speechEl, pluginsEl, mimetypesEl, gamepadsEl, batteryEl, connectionEl, webrtcEl },
                 notify: { notifyEl },
                 permission: { canvasEl, audioEl, rectsEl, rtcpeerEl }
@@ -203,6 +206,7 @@ const configureSettings = () => {
                 if (el == gpuEl) { updateSync('randomize', 'gpu', gpuEl.checked, true) }
                 if (el == canvasContextEl) { updateSync('randomize', 'canvasContext', canvasContextEl.checked, true) }
                 if (el == clientRectsEl) { updateSync('randomize', 'clientRects', clientRectsEl.checked, true) }
+                if (el == audioDataEl) { updateSync('randomize', 'audioData', audioDataEl.checked, true) }
                 if (el == speechEl) { updateSync('block', 'speech', speechEl.checked) }
                 if (el == pluginsEl) { updateSync('block', 'plugins', pluginsEl.checked) }
                 if (el == mimetypesEl) { updateSync('block', 'mimetypes', mimetypesEl.checked) }
@@ -240,7 +244,9 @@ const systemDescription = 'navigator.userAgent&#013navigator.appVersion&#013navi
 const screenDescription = 'screen.width&#013screen.height&#013screen.availWidth&#013screen.availHeight&#013screen.colorDepth&#013screen.pixelDepth'
 const webglDescription = 'WebGLRenderingContext.getParameter'
 const canvasDescription = 'HTMLCanvasElement.getContext&#013CanvasRenderingContext2D&#013WebGLRenderingContext&#013CanvasRenderingContext2D.getImageData&#013HTMLCanvasElement.toDataURL&#013HTMLCanvasElement.toBlob'
-const clientRectsDescription = 'Element.prototype.getClientRects&#013Element.prototype.getBoundingClientRect&#013Range.prototype.getClientRects&#013Range.prototype.getBoundingClientRect'
+const clientRectsDescription = 'Element.getClientRects&#013Element.getBoundingClientRect&#013Range.getClientRects&#013Range.getBoundingClientRect'
+const audioDataDescription = 'AudioBuffer.getChannelData&#013AudioBuffer.copyFromChannel&#013AnalyserNode.getByteFrequencyData&#013AnalyserNode.getFloatFrequencyData'
+
 // Block Description
 const speechDescription = 'speechSynthesis.getVoices'
 const pluginsDescription = 'navigator.plugins'
@@ -357,7 +363,7 @@ const view = html/* html */`
         font-family: monospace;
         font-size: 12px;
         margin: 0 auto;
-        min-height: 80px;
+        min-height: 100px;
         color: #555;
         padding: 10px 20px;
         border-radius: 2px;
@@ -398,6 +404,7 @@ const view = html/* html */`
         <label title="${webglDescription}"><input type="checkbox" id="gpu"><span>GPU</span></label>
         <label title="${canvasDescription}"><input type="checkbox" id="canvasContext"><span>Canvas</span></label>
         <label title="${clientRectsDescription}"><input type="checkbox" id="clientRects"><span>Rects</span></label>
+        <label title="${audioDataDescription}"><input type="checkbox" id="audioData"><span>Audio</span></label>
     </div>
   </section>
   <section id="special">

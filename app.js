@@ -5,7 +5,8 @@ const settings = {
         screens: true,
         gpu: true,
         canvasContext: true,
-        clientRects: true
+        clientRects: true,
+        audioData: true
     },
     block: {
         speech: false,
@@ -55,6 +56,7 @@ const struct = {
     timestamp: '',
     canvasHash: '',
     rectsHash: '',
+    audioHash: '',
     hash: ''
 }
 
@@ -62,7 +64,7 @@ const randomizify = (settings, getNewSettings = false) => {
     
     async function execute(settings) {
         // Settings
-        const { randomize: { system, screens, gpu, canvasContext, clientRects } } = settings
+        const { randomize: { system, screens, gpu, canvasContext, clientRects, audioData } } = settings
 
         // Helpers
         const listRand = (list) => list[Math.floor(Math.random() * list.length)]
@@ -297,10 +299,15 @@ const randomizify = (settings, getNewSettings = false) => {
         // The idea of randomizing the DOMRect with fractional offsets is inspired by Trace
         // https://github.com/jake-cryptic/AbsoluteDoubleTrace/blob/master/MyTrace/js/contentscript/page.js#L496
         const computedOffset = rand(10, 99)
-
         struct.clientRects = clientRects ? { computedOffset } : false
 
+        // audioData
+        const channelNoise = Math.random() * 0.0000001
+        const frequencyNoise = Math.random() * 0.001
+        struct.audioData = audioData ? { channelNoise, frequencyNoise } : false
+
         // create hashes
+        struct.audioHash = hashMini(struct.audioData)
         struct.rectsHash = hashMini(struct.clientRects)
         struct.canvasHash = hashMini(struct.canvasContext)
         struct.hash = await hashify({
@@ -308,7 +315,8 @@ const randomizify = (settings, getNewSettings = false) => {
             ...struct.screenProps,
             ...struct.webgl,
             ...struct.canvasContext,
-            ...struct.clientRects
+            ...struct.clientRects,
+            ...struct.audioData
         })
 
         // timestamp

@@ -43,8 +43,10 @@
             webgl: { extension },
             canvasContext,
             clientRects,
+            audioData,
             canvasHash,
             rectsHash,
+            audioHash,
             hash
         } = struct
 
@@ -62,6 +64,7 @@
             console.log(`WebGLRenderer:`, renderer)
             console.log(`Canvas:`, canvasHash)
             console.log(`Rects:`, rectsHash)
+            console.log(`Audio:`, audioHash)
         console.groupEnd()
 
         // https://stackoverflow.com/questions/9515704/insert-code-into-the-page-context-using-a-content-script
@@ -193,6 +196,65 @@
                 }
             }
 
+            // audioData
+            const audioData = JSON.parse('${JSON.stringify(audioData)}')
+            const { channelNoise, frequencyNoise } = audioData
+            const { getChannelData, copyFromChannel } = AudioBuffer.prototype
+            const { getByteFrequencyData, getFloatFrequencyData } = AnalyserNode.prototype
+            
+            function computePCMData(obj, args) {
+                const data = getChannelData.apply(obj, args)
+                let i, len = data ? data.length : 0
+                for (i = 0; i < len; i++) {
+                    // ensure audio is within range of -1 and 1
+                    const audio = data[i]
+                    const noisified = audio + channelNoise
+                    data[i] = noisified > -1 && noisified < 1 ? noisified : audio
+                }
+                obj._pcmDataComputedChannel = args[0]
+                obj._pcmDataComputed = data
+                return data
+            }
+        
+            function randomAudio(channel) {
+                // if pcm data is already computed to this AudioBuffer Channel then return it
+                if (this._pcmDataComputed && this._pcmDataComputedChannel == channel) {
+                    return this._pcmDataComputed
+                }
+                // else compute pcm data to this AudioBuffer Channel and return it
+                const data = computePCMData(this, arguments)
+                return data
+            }
+        
+            function randomCopy(destination, channel) {
+                // if pcm data is not yet computed to this AudioBuffer Channel then compute it
+                if (!(this._pcmDataComputed && this._pcmDataComputedChannel == channel)) {
+                    computePCMData(this, [channel])
+                }
+                // else make no changes to this AudioBuffer Channel (seeing it is already computed)
+                return copyFromChannel.apply(this, arguments)
+            }
+
+            function computeFrequencyData(data) {
+                let i, len = data.length
+                for (i = 0; i < len; i++) {
+                    data[i] += frequencyNoise
+                }
+                return
+            }
+        
+            function randomByte(uint8Arr) {
+                getByteFrequencyData.apply(this, arguments)
+                computeFrequencyData(uint8Arr)
+                return
+            }
+        
+            function randomFloat(float32Arr) {
+                getFloatFrequencyData.apply(this, arguments)
+                computeFrequencyData(float32Arr)
+                return
+            }
+            
             // Detect Fingerprinting
             const post = (obj) => {
                 obj.src = 'ondicjclhhjndhdkpagjhhfdjbpokfhe'
@@ -259,6 +321,8 @@
                 createOscillator: ['AudioContext.prototype.createOscillator', 4],
                 getChannelData: ['AudioBuffer.prototype.getChannelData', 8],
                 copyFromChannel: ['AudioBuffer.prototype.copyFromChannel', 8],
+                getByteFrequencyData: ['AnalyserNode.prototype.getByteFrequencyData', 8],
+                getFloatFrequencyData: ['AnalyserNode.prototype.getFloatFrequencyData', 8],
                 createDataChannel: ['RTCPeerConnection.prototype.createDataChannel', 3],
                 createOffer: ['RTCPeerConnection.prototype.createOffer', 3],
                 setRemoteDescription: ['RTCPeerConnection.setRemoteDescription', 3]
@@ -506,8 +570,16 @@
                 name: 'AudioBuffer',
                 proto: true,
                 struct: {
-                    getChannelData: AudioBuffer.prototype.getChannelData,
-                    copyFromChannel: AudioBuffer.prototype.copyFromChannel
+                    getChannelData: audioData ? randomAudio : AudioBuffer.prototype.getChannelData, // ? randomize
+                    copyFromChannel: audioData ? randomCopy : AudioBuffer.prototype.copyFromChannel // ? randomize
+                }
+            },
+            {
+                name: 'AnalyserNode',
+                proto: true,
+                struct: {
+                    getByteFrequencyData: audioData ? randomByte : AnalyserNode.prototype.getByteFrequencyData, // ? randomize
+                    getFloatFrequencyData: audioData ? randomFloat : AnalyserNode.prototype.getFloatFrequencyData // ? randomize
                 }
             },
             {
@@ -541,7 +613,61 @@
                 // Deep calls
                 Object.defineProperties(root.Intl.DateTimeFormat.prototype, definify(intlProps))
                 Object.defineProperties(root.navigator.mediaDevices, definify(mediaDeviceProps))
+
+                // Resist lie detection 
+                // The idea of using a proxy is inspired by https://adtechmadness.wordpress.com/2019/03/23/javascript-tampering-detection-and-stealth/
+                function setApiName(api, name) {
+                    Object.defineProperty(api, 'name', {
+                        writable: true
+                    })
+                    api.name = name
+                }
+
+                setApiName(root.CanvasRenderingContext2D.prototype.getImageData, 'getImageData')
+                setApiName(root.WebGLRenderingContext.prototype.getParameter, 'getParameter')
+                setApiName(root.HTMLCanvasElement.prototype.getContext, 'getContext')
+                setApiName(root.HTMLCanvasElement.prototype.toDataURL, 'toDataURL')
+                setApiName(root.HTMLCanvasElement.prototype.toBlob, 'toBlob')
+                setApiName(root.Element.prototype.getBoundingClientRect, 'getBoundingClientRect')
+                setApiName(root.Element.prototype.getClientRects, 'getClientRects')
+                setApiName(root.Range.prototype.getBoundingClientRect, 'getBoundingClientRect')
+                setApiName(root.Range.prototype.getClientRects, 'getClientRects')
+                setApiName(root.AudioBuffer.prototype.getChannelData, 'getChannelData')
+                setApiName(root.AudioBuffer.prototype.copyFromChannel, 'copyFromChannel')
+                setApiName(root.AnalyserNode.prototype.getByteFrequencyData, 'getByteFrequencyData')
+                setApiName(root.AnalyserNode.prototype.getFloatFrequencyData, 'getFloatFrequencyData')
+                
+                const library = {
+                    getImageData: 'getImageData',
+                    getParameter: 'getParameter',
+                    getContext: 'getContext',
+                    toDataURL: 'toDataURL',
+                    toBlob: 'toBlob',
+                    getBoundingClientRect: 'getBoundingClientRect',
+                    getClientRects: 'getClientRects',
+                    getBoundingClientRect: 'getBoundingClientRect',
+                    getClientRects: 'getClientRects',
+                    getChannelData: 'getChannelData',
+                    copyFromChannel: 'copyFromChannel',
+                    getByteFrequencyData: 'getByteFrequencyData',
+                    getFloatFrequencyData: 'getFloatFrequencyData'
+                }
+
+                // create Chromium Proxy
+                const { toString } = Function.prototype
+                const toStringProxy = new Proxy(toString, {
+                    apply: (target, thisArg, args) => {
+                        const name = thisArg.name
+                        return (
+                            thisArg === toString.toString ? 'function toString() { [native code] }' :
+                            name === library[name] ? 'function '+library[name]+'() { [native code] }' :
+                            target.call(thisArg, ...args)
+                        )
+                    }
+                })
+                root.Function.prototype.toString = toStringProxy
             }
+
             redefine(window)
 
             // catch iframes on dom loaded

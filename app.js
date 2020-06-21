@@ -136,13 +136,14 @@ const randomizify = (settings, getNewSettings = false) => {
             const touchOS = (/^(Windows(|\sPhone)|CrOS|Android|iOS)$/ig.test(os))
             return touchOS
         }
-        struct.navProps.maxTouchPoints = !system ? navigator.maxTouchPoints : canLieTouch() ? rand(1, 10) : navigator.maxTouchPoints
-        struct.navProps.hardwareConcurrency = !system ? navigator.hardwareConcurrency : rand(1, 16)
-        struct.navProps.deviceMemory = !system ? navigator.deviceMemory : evenRand(2, 32)
+        struct.navProps.maxTouchPoints = !system ? navigator.maxTouchPoints : canLieTouch() ? listRand([0, 10]) : navigator.maxTouchPoints
+        struct.navProps.hardwareConcurrency = !system ? navigator.hardwareConcurrency : listRand([2, 4, 8])
+        struct.navProps.deviceMemory = !system ? navigator.deviceMemory : listRand([2, 4, 8, 16])
 
         // Device Screen
         // https://gs.statcounter.com/screen-resolution-stats
         const randomScreen = () => {
+            const depth = listRand([24, 32, 48])
             const device = listRand([{
                 width: 1920,
                 height: 1080
@@ -156,10 +157,10 @@ const randomizify = (settings, getNewSettings = false) => {
                 width: 1600,
                 height: 900
             }])
-            device.availWidth = device.width - rand(1, 20)
-            device.availHeight = device.height - rand(1, 20)
-            device.colorDepth = listRand([24, 32, 48])
-            device.pixelDepth = listRand([24, 32, 48])
+            device.availWidth = device.width - evenRand(2, 20)
+            device.availHeight = device.height
+            device.colorDepth = depth
+            device.pixelDepth = depth
             return device
         }
         const actualScreen = {

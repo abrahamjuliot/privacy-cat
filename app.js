@@ -136,9 +136,21 @@ const randomizify = (settings, getNewSettings = false) => {
             const touchOS = (/^(Windows(|\sPhone)|CrOS|Android|iOS)$/ig.test(os))
             return touchOS
         }
+        const memory = {
+            low: [2, 4],
+            mid: [4, 8],
+            high: [8, 16]
+        }
+        const hardwareConcurrencyComputed = listRand([2, 4, 8])
+        const deviceMemoryRange = (
+            hardwareConcurrencyComputed == 2 ? memory.low :
+            hardwareConcurrencyComputed == 4 ? memory.mid :
+            memory.high
+        )
+        const deviceMemoryComputed = listRand(deviceMemoryRange)
         struct.navProps.maxTouchPoints = !system ? navigator.maxTouchPoints : canLieTouch() ? listRand([0, 10]) : navigator.maxTouchPoints
-        struct.navProps.hardwareConcurrency = !system ? navigator.hardwareConcurrency : listRand([2, 4])
-        struct.navProps.deviceMemory = !system ? navigator.deviceMemory : listRand([2, 4, 8])
+        struct.navProps.hardwareConcurrency = !system ? navigator.hardwareConcurrency : hardwareConcurrencyComputed
+        struct.navProps.deviceMemory = !system ? navigator.deviceMemory : deviceMemoryComputed
 
         // Device Screen
         // https://gs.statcounter.com/screen-resolution-stats

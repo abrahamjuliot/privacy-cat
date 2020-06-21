@@ -137,8 +137,8 @@ const randomizify = (settings, getNewSettings = false) => {
             return touchOS
         }
         struct.navProps.maxTouchPoints = !system ? navigator.maxTouchPoints : canLieTouch() ? listRand([0, 10]) : navigator.maxTouchPoints
-        struct.navProps.hardwareConcurrency = !system ? navigator.hardwareConcurrency : listRand([2, 4, 8])
-        struct.navProps.deviceMemory = !system ? navigator.deviceMemory : listRand([2, 4, 8, 16])
+        struct.navProps.hardwareConcurrency = !system ? navigator.hardwareConcurrency : listRand([2, 4])
+        struct.navProps.deviceMemory = !system ? navigator.deviceMemory : listRand([2, 4, 8])
 
         // Device Screen
         // https://gs.statcounter.com/screen-resolution-stats

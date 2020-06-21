@@ -138,7 +138,7 @@ const randomizify = (settings, getNewSettings = false) => {
         }
         const memory = {
             low: [2, 4],
-            mid: [4, 8],
+            mid: [4, 6],
             high: [8, 16]
         }
         const hardwareConcurrencyComputed = listRand([2, 4, 8])

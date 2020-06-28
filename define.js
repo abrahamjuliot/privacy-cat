@@ -151,7 +151,7 @@
                 
                 const tryRandomNumber = (num, computedOffset) => {
                     const shouldLieNumber = num => {
-                        const decimals = num.toString().split('.')[1]
+                        const decimals = num && num.toString().split('.')[1]
                         return decimals && decimals.length > 10 ? true : false
                     }
                     if (shouldLieNumber(num)) {

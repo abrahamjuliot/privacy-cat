@@ -74,9 +74,9 @@
             // client side computation
 
             // webgl
-            function getParameter(extension) {
+            function computeGetParameter(extension) {
                 const nativeGetParameter = WebGLRenderingContext.prototype.getParameter
-                return function (x) {
+                return function getParameter(x) {
                     return (
                         extension == false ? nativeGetParameter.apply(this, arguments) :
                         extension[x] ? extension[x] : 
@@ -190,13 +190,21 @@
                     props.forEach(prop => { client[prop] = tryRandomNumber(client[prop], computedOffset) })
                     return client
                 }
-                return function () {
+
+                function getBoundingClientRect() {
                     const client = method.apply(this, arguments)
                     return domRectify(client)
                 }
+                function getClientRects() {
+                    const client = method.apply(this, arguments)
+                    return domRectify(client)
+                }
+                return (
+                    type == 'rangeRects' || type == 'elementRects' ? getClientRects :
+                    getBoundingClientRect
+                )
             }
-            const getBoundingClientRect = randomClient 
-            const getClientRects = randomClient
+            
             // audioData
             const audioData = JSON.parse('${JSON.stringify(audioData)}')
             const { channelNoise, frequencyNoise } = audioData
@@ -520,16 +528,16 @@
                 name: 'Element',
                 proto: true,
                 struct: {
-                    getBoundingClientRect: clientRects ? getBoundingClientRect('elementBounding') : Element.prototype.getBoundingClientRect, // ? randomize
-                    getClientRects: clientRects ? getClientRects('elementRects') : Element.prototype.getClientRects // ? randomize
+                    getBoundingClientRect: clientRects ? randomClient('elementBounding') : Element.prototype.getBoundingClientRect, // ? randomize
+                    getClientRects: clientRects ? randomClient('elementRects') : Element.prototype.getClientRects // ? randomize
                 }
             },
             {
                 name: 'Range',
                 proto: true,
                 struct: {
-                    getBoundingClientRect: clientRects ? getBoundingClientRect('rangeBounding') : Range.prototype.getBoundingClientRect, // ? randomize
-                    getClientRects: clientRects ? getClientRects('rangeRects') : Range.prototype.getClientRects // ? randomize
+                    getBoundingClientRect: clientRects ? randomClient('rangeBounding') : Range.prototype.getBoundingClientRect, // ? randomize
+                    getClientRects: clientRects ? randomClient('rangeRects') : Range.prototype.getClientRects // ? randomize
                 }
             },
             {
@@ -538,7 +546,7 @@
                 struct: {
                     shaderSource: WebGLRenderingContext.prototype.shaderSource,
                     getExtension: WebGLRenderingContext.prototype.getExtension,
-                    getParameter: getParameter(JSON.parse('${JSON.stringify(extension)}')), // ? randomize
+                    getParameter: computeGetParameter(JSON.parse('${JSON.stringify(extension)}')), // ? randomize
                     getSupportedExtensions: WebGLRenderingContext.prototype.getSupportedExtensions
                 }
             },

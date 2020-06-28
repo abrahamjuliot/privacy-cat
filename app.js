@@ -445,8 +445,11 @@ const listenOnMessage = (data, sender) => {
             let totalScriptsCaught, allPropsRead, allURLs
             if (tabIds[tabId]) {
                 totalScriptsCaught = scriptsCaughtLen + tabIds[tabId].totalScriptsCaught
+                tabIds[tabId].totalScriptsCaught = totalScriptsCaught
                 allPropsRead = {...propsRead, ...tabIds[tabId].allPropsRead}
+                tabIds[tabId].allPropsRead = allPropsRead
                 allURLs = [...tabIds[tabId].allURLs, url]
+                tabIds[tabId].allURLs = allURLs
             }
             else {
                 tabIds[tabId] = { totalScriptsCaught: scriptsCaughtLen, allPropsRead: propsRead, allURLs: [url] }

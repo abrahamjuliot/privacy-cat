@@ -422,7 +422,7 @@ const setBadge = (tabId, totalScriptsCaught, allPropsRead, allURLs) => {
     return chrome.browserAction.setBadgeText({ text: `${totalScriptsCaught}`, tabId })
 }
 
-const tabIds = {} // collect scriptsCaughtLen, propsRead per tabId
+const tabIds = { totalScriptsCaught: 0, allPropsRead: {}, allURLs: [] } // collect scriptsCaughtLen, propsRead per tabId
 
 const listenOnMessage = (data, sender) => {
     // listen for execute reboot
@@ -443,12 +443,12 @@ const listenOnMessage = (data, sender) => {
             const { id: tabId } = tab
             const visibleTab = tab.index >= 0
             let totalScriptsCaught, allPropsRead, allURLs
-            if (tabIds[tabId]) {
+            if (tabIds[tabId] && !(tabIds[tabId].allURLs.indexOf(url) > -1)) {
                 totalScriptsCaught = scriptsCaughtLen + tabIds[tabId].totalScriptsCaught
-                tabIds[tabId].totalScriptsCaught = totalScriptsCaught
                 allPropsRead = {...propsRead, ...tabIds[tabId].allPropsRead}
-                tabIds[tabId].allPropsRead = allPropsRead
                 allURLs = [...tabIds[tabId].allURLs, url]
+                tabIds[tabId].allPropsRead = allPropsRead
+                tabIds[tabId].totalScriptsCaught = totalScriptsCaught
                 tabIds[tabId].allURLs = allURLs
             }
             else {

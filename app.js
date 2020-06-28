@@ -414,10 +414,12 @@ const chromeNotification = (title, message, iconUrl = 'privacycat128.png') => {
     })
 }
 
-const setBadge = (tabId, scriptsCaughtLen, propsRead) => {
-    const propsReadList = Object.keys(propsRead).map(prop => prop.replace(/\.prototype/, ''))
-    chrome.browserAction.setTitle({ title: `${propsReadList.join('\n')+'\n...'}`, tabId })
-    return chrome.browserAction.setBadgeText({ text: `${scriptsCaughtLen}`, tabId })
+const setBadge = (tabId, totalScriptsCaught, allPropsRead, allURLs) => {
+    const propsReadList = Object.keys(allPropsRead).map(prop => prop.replace(/\.prototype/, ''))
+    chrome.browserAction.setTitle(
+        { title: `Fingerprinting detected:\n${allURLs.join('\n')}\n\n${propsReadList.join('\n')+'\n...\nView details in the console'}`, tabId }
+    )
+    return chrome.browserAction.setBadgeText({ text: `${totalScriptsCaught}`, tabId })
 }
 
 const tabIds = {} // collect scriptsCaughtLen, propsRead per tabId
@@ -432,7 +434,7 @@ const listenOnMessage = (data, sender) => {
     const { notificationSettings: { notification }, warning, url, propsRead } = data
     const fingerprintScripts = data.fingerprintScripts || []
     const scriptsCaughtLen = fingerprintScripts.length
-    const notificationMessage = notification ? `${url}\n\n${Object.keys(propsRead).length}+ properties read (view console)` : ''
+    const notificationMessage = notification ? `${url}\n\n${Object.keys(propsRead).length}+ properties read [details in the console]` : ''
 
     if (notification) { console.log(propsRead) }
     if (scriptsCaughtLen) {
@@ -440,18 +442,20 @@ const listenOnMessage = (data, sender) => {
             if (chrome.runtime.lastError) { return }
             const { id: tabId } = tab
             const visibleTab = tab.index >= 0
-            let totalScriptsCaught, allPropsRead
+            let totalScriptsCaught, allPropsRead, allURLs
             if (tabIds[tabId]) {
-                totalScriptsCaught = scriptsCaughtLen + tabIds[tabId].scriptsCaughtLen
-                allPropsRead = { ...propsRead, ...tabIds[tabId].propsRead }
+                totalScriptsCaught = scriptsCaughtLen + tabIds[tabId].totalScriptsCaught
+                allPropsRead = {...propsRead, ...tabIds[tabId].allPropsRead}
+                allURLs = [...tabIds[tabId].allURLs, url]
             }
             else {
-                tabIds[tabId] = { scriptsCaughtLen, propsRead }
+                tabIds[tabId] = { totalScriptsCaught: scriptsCaughtLen, allPropsRead: propsRead, allURLs: [url] }
                 totalScriptsCaught = scriptsCaughtLen
                 allPropsRead = propsRead
+                allURLs = [url]
             }   
             if (visibleTab) {
-                setBadge(tabId, totalScriptsCaught, allPropsRead)
+                setBadge(tabId, totalScriptsCaught, allPropsRead, allURLs)
                 if (notification) {
                     chromeNotification(warning, notificationMessage)
                 }
@@ -459,7 +463,7 @@ const listenOnMessage = (data, sender) => {
             else { // prerendered tab
                 chrome.webNavigation.onCommitted.addListener(function update(details) {
                     if (details.tabId == senderTabId) {
-                        setBadge(tabId, totalScriptsCaught, allPropsRead)
+                        setBadge(tabId, totalScriptsCaught, allPropsRead, allURLs)
                         chrome.webNavigation.onCommitted.removeListener(update)
                         if (notification) { chromeNotification(warning, notificationMessage) }
                     }

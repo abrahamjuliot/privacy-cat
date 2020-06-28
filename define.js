@@ -341,7 +341,7 @@
                     return 'https:'+path
                 }
                 catch (err) {
-                    return '[unknown]'
+                    return '[unknown source]'
                 }
             }
             const itemInList = (list, item) => list.indexOf(item) > -1

@@ -352,11 +352,14 @@ const view = html/* html */`
     }
     #reboot {
         border: none;
+        font-weight: bold;
         padding: 10px 20px;
         background: rgb(239, 239, 239);
     }
     #reboot:hover {
         box-shadow: 0px 1px 1px 0px #80797963, 0px 2px 2px 2px #8079790f, 0px 1px 2px 2px #8079790f;
+        background: #0175ff;
+        color: #fff;
     }
     #fingerprint {
         word-wrap: break-word;

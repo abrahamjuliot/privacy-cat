@@ -266,28 +266,28 @@
             // - privacypossum https://github.com/cowlicks/privacypossum/blob/master/src/js/contentscripts/fingercounting.js
             // - tracker-radar-collector https://github.com/duckduckgo/tracker-radar-collector/blob/master/collectors/APICalls/breakpoints.js
             const propAPI = {
-                appVersion: ['navigator.appVersion', 1],
-                deviceMemory: ['navigator.deviceMemory', 1],
-                doNotTrack: ['navigator.doNotTrack', 1],
-                hardwareConcurrency: ['navigator.hardwareConcurrency', 1],
-                languages: ['navigator.languages', 1],
-                maxTouchPoints: ['navigator.maxTouchPoints', 1],
-                mimeTypes: ['navigator.mimeTypes', 1],
-                platform: ['navigator.platform', 1],
-                plugins: ['navigator.plugins', 1],
-                userAgent: ['navigator.userAgent', 1],
-                vendor: ['navigator.vendor', 1],
-                connection: ['navigator.connection', 1],
-                getBattery: ['navigator.getBattery', 1],
-                getGamepads: ['navigator.getGamepads', 1],
-                width: ['screen.width', 1],
-                height: ['screen.height', 1],
-                availWidth: ['screen.availWidth', 1],
-                availHeight: ['screen.availHeight', 1],
-                availTop: ['screen.availTop', 1],
-                availLeft: ['screen.availLeft', 1],
-                colorDepth: ['screen.colorDepth', 1],
-                pixelDepth: ['screen.pixelDepth', 1],
+                appVersion: ['Navigator.prototype.appVersion', 1],
+                deviceMemory: ['Navigator.prototype.deviceMemory', 1],
+                doNotTrack: ['Navigator.prototype.doNotTrack', 1],
+                hardwareConcurrency: ['Navigator.prototype.hardwareConcurrency', 1],
+                languages: ['Navigator.prototype.languages', 1],
+                maxTouchPoints: ['Navigator.prototype.maxTouchPoints', 1],
+                mimeTypes: ['Navigator.prototype.mimeTypes', 1],
+                platform: ['Navigator.prototype.platform', 1],
+                plugins: ['Navigator.prototype.plugins', 1],
+                userAgent: ['Navigator.prototype.userAgent', 1],
+                vendor: ['Navigator.prototype.vendor', 1],
+                connection: ['Navigator.prototype.connection', 1],
+                getBattery: ['Navigator.prototype.getBattery', 1],
+                getGamepads: ['Navigator.prototype.getGamepads', 1],
+                width: ['Screen.prototype.width', 1],
+                height: ['Screen.prototype.height', 1],
+                availWidth: ['Screen.prototype.availWidth', 1],
+                availHeight: ['Screen.prototype.availHeight', 1],
+                availTop: ['Screen.prototype.availTop', 1],
+                availLeft: ['Screen.prototype.availLeft', 1],
+                colorDepth: ['Screen.prototype.colorDepth', 1],
+                pixelDepth: ['Screen.prototype.pixelDepth', 1],
                 getTimezoneOffset: ['Date.prototype.getTimezoneOffset', 1],
                 resolvedOptions: ['Intl.DateTimeFormat.prototype.resolvedOptions', 1],
                 acos: ['acos: Math.acos', 1],
@@ -301,7 +301,7 @@
                 canPlayType: ['prototype.canPlayType', 1],
                 isTypeSupported: ['isTypeSupported', 1],
                 getVoices: ['speechSynthesis.getVoices', 1],
-                now: ['performance.now', 1],
+                now: ['Performance.prototype.now', 1],
                 getBoundingClientRect: ['prototype.getBoundingClientRect', 1],
                 getClientRects: ['prototype.getClientRects', 3],
                 offsetWidth: ['HTMLElement.prototype.offsetWidth', 1],
@@ -313,7 +313,7 @@
                 getContext: ['HTMLCanvasElement.prototype.getContext', 1],
                 toDataURL: ['HTMLCanvasElement.prototype.toDataURL', 8],
                 toBlob: ['HTMLCanvasElement.prototype.toBlob', 4],
-                getImageData: ['CanvasRenderingContext2D.prototpe.getImageData', 8],
+                getImageData: ['CanvasRenderingContext2D.prototype.getImageData', 8],
                 isPointInPath: ['CanvasRenderingContext2D.prototype.isPointInPath', 1],
                 isPointInStroke: ['CanvasRenderingContext2D.prototype.isPointInStroke', 1],
                 measureText: ['CanvasRenderingContext2D.prototype.measureText', 2],
@@ -325,7 +325,7 @@
                 getFloatFrequencyData: ['AnalyserNode.prototype.getFloatFrequencyData', 8],
                 createDataChannel: ['RTCPeerConnection.prototype.createDataChannel', 3],
                 createOffer: ['RTCPeerConnection.prototype.createOffer', 3],
-                setRemoteDescription: ['RTCPeerConnection.setRemoteDescription', 3]
+                setRemoteDescription: ['RTCPeerConnection.prototype.setRemoteDescription', 3]
             }
 
             // https://stackoverflow.com/questions/2255689/how-to-get-the-file-path-of-the-currently-executing-javascript-code
@@ -433,8 +433,8 @@
                 enumerateDevices: navigator.mediaDevices.enumerateDevices
             }
             const apiStructs = [{
-                name: 'navigator',
-                proto: false,
+                name: 'Navigator',
+                proto: true,
                 struct: {
                     ...JSON.parse('${JSON.stringify(navProps)}'), // ? randomize
                     doNotTrack: navigator.doNotTrack,
@@ -447,8 +447,8 @@
                 }
             }, 
             {
-                name: 'screen',
-                proto: false,
+                name: 'Screen',
+                proto: true,
                 struct: JSON.parse('${JSON.stringify(screenProps)}') // ? randomize
             },
             {
@@ -507,8 +507,8 @@
                 }
             },
             {
-                name: 'performance',
-                proto: false,
+                name: 'Performance',
+                proto: true,
                 struct: {
                     now: performance.now
                 }

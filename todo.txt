@@ -1,18 +1,11 @@
 
-- look into rect and audio
+
 - turn off for this domain
-- iframes (aggessive)
-- console (remove or optional)
-- extension/tab data: props read and excessive (modal)
-- Explian in  5 words how items can fingerprint you
 - pointinpath
 - webgl props feature detect
-- audio props feature detect
-- performance.memory + console.memory
-- navigator beacon
 - userAgentData
 - navigator.userAgentData.getHighEntropyValues()
-- keep userAgent seprate from hardware
+- keep userAgent seperate from hardware
 
 Resources:
 - https://arxiv.org/pdf/1905.01051.pdf

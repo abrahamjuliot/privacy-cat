@@ -74,13 +74,13 @@
             // client side computation
 
             // webgl
-            function webgl(extension) {
-                const getParameter = WebGLRenderingContext.prototype.getParameter
+            function getParameter(extension) {
+                const nativeGetParameter = WebGLRenderingContext.prototype.getParameter
                 return function (x) {
                     return (
-                        extension == false ? getParameter.apply(this, arguments) :
+                        extension == false ? nativeGetParameter.apply(this, arguments) :
                         extension[x] ? extension[x] : 
-                        getParameter.apply(this, arguments)
+                        nativeGetParameter.apply(this, arguments)
                     )
                 }
             }
@@ -88,13 +88,13 @@
             // canvas
             const canvasContext = JSON.parse('${JSON.stringify(canvasContext)}')
             const canvasProto = HTMLCanvasElement.prototype
-            const getContext = HTMLCanvasElement.prototype.getContext
-            const toDataURL = HTMLCanvasElement.prototype.toDataURL
-            const toBlob = HTMLCanvasElement.prototype.toBlob
-            const getImageData = CanvasRenderingContext2D.prototype.getImageData
-            function canvasContextType(contextType, contextAttributes) {
+            const nativeGetContext = HTMLCanvasElement.prototype.getContext
+            const nativeToDataURL = HTMLCanvasElement.prototype.toDataURL
+            const nativeToBlob = HTMLCanvasElement.prototype.toBlob
+            const nativeGetImageData = CanvasRenderingContext2D.prototype.getImageData
+            function getContext(contextType, contextAttributes) {
                 canvasProto._contextType = contextType
-                return getContext.apply(this, arguments)
+                return nativeGetContext.apply(this, arguments)
             }
             function randomizeContext2D(context) {
                 const { fillStyle, shadowColor, strokeStyle, font } = canvasContext
@@ -113,40 +113,40 @@
                 context.height += heightOffset
                 return context
             }
-            function randomCanvasDataURL() {
+            function toDataURL() {
                 if (this._contextType == '2d') {
-                    const context = getContext.apply(this, ['2d'])
+                    const context = nativeGetContext.apply(this, ['2d'])
                     randomizeContext2D(context)
-                    return toDataURL.apply(this, arguments)
+                    return nativeToDataURL.apply(this, arguments)
                 } else if (this._contextType == 'webgl') {
                     randomizeContextWebgl(this)
-                    return toDataURL.apply(this, arguments)
+                    return nativeToDataURL.apply(this, arguments)
                 }
-                return toDataURL.apply(this, arguments)
+                return nativeToDataURL.apply(this, arguments)
             }
-            function randomCanvasBlob() {
+            function toBlob() {
                 if (this._contextType == '2d') {
-                    const context = getContext.apply(this, ['2d'])
+                    const context = nativeGetContext.apply(this, ['2d'])
                     randomizeContext2D(context)
-                    return toBlob.apply(this, arguments)
+                    return nativeToBlob.apply(this, arguments)
                 } else if (this._contextType == 'webgl') {
                     randomizeContextWebgl(this)
-                    return toBlob.apply(this, arguments)
+                    return nativeToBlob.apply(this, arguments)
                 }
-                return toBlob.apply(this, arguments)
+                return nativeToBlob.apply(this, arguments)
             }
-            function randomImageData() {
+            function getImageData() {
                 const context = randomizeContext2D(this)
-                return getImageData.apply(context, arguments)
+                return nativeGetImageData.apply(context, arguments)
             }
 
             // clientRects
             const { computedOffset } = JSON.parse('${JSON.stringify(clientRects)}')
             const clientRects = computedOffset ? true : false // detect setting
-            const elementGetClientRects = Element.prototype.getClientRects
-            const elementGetBoundingClientRect = Element.prototype.getBoundingClientRect
-            const rangeGetClientRects = Range.prototype.getClientRects
-            const rangeGetBoundingClientRect = Range.prototype.getBoundingClientRect
+            const nativeElementGetClientRects = Element.prototype.getClientRects
+            const nativeElementGetBoundingClientRect = Element.prototype.getBoundingClientRect
+            const nativeRangeGetClientRects = Range.prototype.getClientRects
+            const nativeRangeGetBoundingClientRect = Range.prototype.getBoundingClientRect
             const randomClient = type => {
                 
                 const tryRandomNumber = (num, computedOffset) => {
@@ -166,10 +166,10 @@
                 }
 
                 const method = (
-                    type == 'rangeRects' ? rangeGetClientRects :
-                    type == 'rangeBounding' ? rangeGetBoundingClientRect :
-                    type == 'elementRects' ? elementGetClientRects :
-                    type == 'elementBounding' ? elementGetBoundingClientRect : ''
+                    type == 'rangeRects' ? nativeRangeGetClientRects :
+                    type == 'rangeBounding' ? nativeRangeGetBoundingClientRect :
+                    type == 'elementRects' ? nativeElementGetClientRects :
+                    type == 'elementBounding' ? nativeElementGetBoundingClientRect : ''
                 )
                 const domRectify = (client) => {
                     const props = [ 'bottom', 'height', 'left', 'right', 'top', 'width', 'x', 'y' ]
@@ -195,15 +195,18 @@
                     return domRectify(client)
                 }
             }
-
+            const getBoundingClientRect = randomClient 
+            const getClientRects = randomClient
             // audioData
             const audioData = JSON.parse('${JSON.stringify(audioData)}')
             const { channelNoise, frequencyNoise } = audioData
-            const { getChannelData, copyFromChannel } = AudioBuffer.prototype
-            const { getByteFrequencyData, getFloatFrequencyData } = AnalyserNode.prototype
+            const nativeGetChannelData = AudioBuffer.prototype.getChannelData
+            const nativeCopyFromChannel = AudioBuffer.prototype.copyFromChannel
+            const nativeGetByteFrequencyData = AnalyserNode.prototype.getByteFrequencyData
+            const nativeGetFloatFrequencyData = AnalyserNode.prototype.getFloatFrequencyData
             
             function computePCMData(obj, args) {
-                const data = getChannelData.apply(obj, args)
+                const data = nativeGetChannelData.apply(obj, args)
                 let i, len = data ? data.length : 0
                 for (i = 0; i < len; i++) {
                     // ensure audio is within range of -1 and 1
@@ -216,7 +219,7 @@
                 return data
             }
         
-            function randomAudio(channel) {
+            function getChannelData(channel) {
                 // if pcm data is already computed to this AudioBuffer Channel then return it
                 if (this._pcmDataComputed && this._pcmDataComputedChannel == channel) {
                     return this._pcmDataComputed
@@ -226,13 +229,13 @@
                 return data
             }
         
-            function randomCopy(destination, channel) {
+            function copyFromChannel(destination, channel) {
                 // if pcm data is not yet computed to this AudioBuffer Channel then compute it
                 if (!(this._pcmDataComputed && this._pcmDataComputedChannel == channel)) {
                     computePCMData(this, [channel])
                 }
                 // else make no changes to this AudioBuffer Channel (seeing it is already computed)
-                return copyFromChannel.apply(this, arguments)
+                return nativeCopyFromChannel.apply(this, arguments)
             }
 
             function computeFrequencyData(data) {
@@ -243,14 +246,14 @@
                 return
             }
         
-            function randomByte(uint8Arr) {
-                getByteFrequencyData.apply(this, arguments)
+            function getByteFrequencyData(uint8Arr) {
+                nativeGetByteFrequencyData.apply(this, arguments)
                 computeFrequencyData(uint8Arr)
                 return
             }
         
-            function randomFloat(float32Arr) {
-                getFloatFrequencyData.apply(this, arguments)
+            function getFloatFrequencyData(float32Arr) {
+                nativeGetFloatFrequencyData.apply(this, arguments)
                 computeFrequencyData(float32Arr)
                 return
             }
@@ -517,16 +520,16 @@
                 name: 'Element',
                 proto: true,
                 struct: {
-                    getBoundingClientRect: clientRects ? randomClient('elementBounding') : Element.prototype.getBoundingClientRect, // ? randomize
-                    getClientRects: clientRects ? randomClient('elementRects') : Element.prototype.getClientRects // ? randomize
+                    getBoundingClientRect: clientRects ? getBoundingClientRect('elementBounding') : Element.prototype.getBoundingClientRect, // ? randomize
+                    getClientRects: clientRects ? getClientRects('elementRects') : Element.prototype.getClientRects // ? randomize
                 }
             },
             {
                 name: 'Range',
                 proto: true,
                 struct: {
-                    getBoundingClientRect: clientRects ? randomClient('rangeBounding') : Range.prototype.getBoundingClientRect, // ? randomize
-                    getClientRects: clientRects ? randomClient('rangeRects') : Range.prototype.getClientRects // ? randomize
+                    getBoundingClientRect: clientRects ? getBoundingClientRect('rangeBounding') : Range.prototype.getBoundingClientRect, // ? randomize
+                    getClientRects: clientRects ? getClientRects('rangeRects') : Range.prototype.getClientRects // ? randomize
                 }
             },
             {
@@ -535,7 +538,7 @@
                 struct: {
                     shaderSource: WebGLRenderingContext.prototype.shaderSource,
                     getExtension: WebGLRenderingContext.prototype.getExtension,
-                    getParameter: webgl(JSON.parse('${JSON.stringify(extension)}')), // ? randomize
+                    getParameter: getParameter(JSON.parse('${JSON.stringify(extension)}')), // ? randomize
                     getSupportedExtensions: WebGLRenderingContext.prototype.getSupportedExtensions
                 }
             },
@@ -543,16 +546,16 @@
                 name: 'HTMLCanvasElement',
                 proto: true,
                 struct: {
-                    getContext: canvasContext ? canvasContextType : HTMLCanvasElement.prototype.getContext, // ? capture type to randomize
-                    toDataURL: canvasContext ? randomCanvasDataURL : HTMLCanvasElement.prototype.toDataURL, // ? randomize
-                    toBlob: canvasContext ? randomCanvasBlob : HTMLCanvasElement.prototype.toBlob, // ? randomize
+                    getContext: canvasContext ? getContext : HTMLCanvasElement.prototype.getContext, // ? capture type to randomize
+                    toDataURL: canvasContext ? toDataURL : HTMLCanvasElement.prototype.toDataURL, // ? randomize
+                    toBlob: canvasContext ? toBlob : HTMLCanvasElement.prototype.toBlob, // ? randomize
                 }
             },
             {
                 name: 'CanvasRenderingContext2D',
                 proto: true,
                 struct: {
-                    getImageData: canvasContext ? randomImageData : CanvasRenderingContext2D.prototype.getImageData, // ? randomize
+                    getImageData: canvasContext ? getImageData : CanvasRenderingContext2D.prototype.getImageData, // ? randomize
                     isPointInPath: CanvasRenderingContext2D.prototype.isPointInPath,
                     isPointInStroke: CanvasRenderingContext2D.prototype.isPointInStroke,
                     measureText: CanvasRenderingContext2D.prototype.measureText
@@ -570,16 +573,16 @@
                 name: 'AudioBuffer',
                 proto: true,
                 struct: {
-                    getChannelData: audioData ? randomAudio : AudioBuffer.prototype.getChannelData, // ? randomize
-                    copyFromChannel: audioData ? randomCopy : AudioBuffer.prototype.copyFromChannel // ? randomize
+                    getChannelData: audioData ? getChannelData : AudioBuffer.prototype.getChannelData, // ? randomize
+                    copyFromChannel: audioData ? copyFromChannel : AudioBuffer.prototype.copyFromChannel // ? randomize
                 }
             },
             {
                 name: 'AnalyserNode',
                 proto: true,
                 struct: {
-                    getByteFrequencyData: audioData ? randomByte : AnalyserNode.prototype.getByteFrequencyData, // ? randomize
-                    getFloatFrequencyData: audioData ? randomFloat : AnalyserNode.prototype.getFloatFrequencyData // ? randomize
+                    getByteFrequencyData: audioData ? getByteFrequencyData : AnalyserNode.prototype.getByteFrequencyData, // ? randomize
+                    getFloatFrequencyData: audioData ? getFloatFrequencyData : AnalyserNode.prototype.getFloatFrequencyData // ? randomize
                 }
             },
             {
@@ -615,28 +618,7 @@
                 Object.defineProperties(root.navigator.mediaDevices, definify(mediaDeviceProps))
 
                 // Resist lie detection 
-                // The idea of using a proxy is inspired by https://adtechmadness.wordpress.com/2019/03/23/javascript-tampering-detection-and-stealth/
-                function setApiName(api, name) {
-                    Object.defineProperty(api, 'name', {
-                        writable: true
-                    })
-                    api.name = name
-                }
-
-                setApiName(root.CanvasRenderingContext2D.prototype.getImageData, 'getImageData')
-                setApiName(root.WebGLRenderingContext.prototype.getParameter, 'getParameter')
-                setApiName(root.HTMLCanvasElement.prototype.getContext, 'getContext')
-                setApiName(root.HTMLCanvasElement.prototype.toDataURL, 'toDataURL')
-                setApiName(root.HTMLCanvasElement.prototype.toBlob, 'toBlob')
-                setApiName(root.Element.prototype.getBoundingClientRect, 'getBoundingClientRect')
-                setApiName(root.Element.prototype.getClientRects, 'getClientRects')
-                setApiName(root.Range.prototype.getBoundingClientRect, 'getBoundingClientRect')
-                setApiName(root.Range.prototype.getClientRects, 'getClientRects')
-                setApiName(root.AudioBuffer.prototype.getChannelData, 'getChannelData')
-                setApiName(root.AudioBuffer.prototype.copyFromChannel, 'copyFromChannel')
-                setApiName(root.AnalyserNode.prototype.getByteFrequencyData, 'getByteFrequencyData')
-                setApiName(root.AnalyserNode.prototype.getFloatFrequencyData, 'getFloatFrequencyData')
-                
+                // The idea of using a proxy is inspired by https://adtechmadness.wordpress.com/2019/03/23/javascript-tampering-detection-and-stealth/                
                 const library = {
                     getImageData: 'getImageData',
                     getParameter: 'getParameter',

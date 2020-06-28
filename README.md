@@ -1,9 +1,9 @@
 # Privacy Cat
-Cat like security against browser and device fingerprinting
+Catlike security against browser and device fingerprinting
 
 ![Privacy Cat](https://github.com/abrahamjuliot/privacy-cat/blob/master/privacycat_2.png)
 
-## How does this differ from similar extensions?
+## Catlike Security
 1. **Hiss Defense**: enforces a Proxy defense against [tampering detection](https://adtechmadness.wordpress.com/2019/03/23/javascript-tampering-detection-and-stealth)
 2. **Paws Scripts**: option to pause script execution and require permission in order to read the API
 3. **Feline Vision**: detects fingerprinting in real time and outlines fingerprinting stats in the console

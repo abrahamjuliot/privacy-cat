@@ -240,8 +240,8 @@ const configureSettings = () => {
 }
 
 // Randomization Description
-const systemDescription = 'navigator.userAgent&#013navigator.appVersion&#013navigator.platform&#013navigator.hardwareConcurrency&#013navigator.deviceMemory&#013navigator.maxTouchPoints'
-const screenDescription = 'screen.width&#013screen.height&#013screen.availWidth&#013screen.availHeight&#013screen.colorDepth&#013screen.pixelDepth'
+const systemDescription = 'Navigator.userAgent&#013Navigator.appVersion&#013Navigator.platform&#013Navigator.hardwareConcurrency&#013Navigator.deviceMemory&#013Navigator.maxTouchPoints'
+const screenDescription = 'Screen.width&#013Screen.height&#013Screen.availWidth&#013Screen.availHeight&#013Screen.colorDepth&#013Screen.pixelDepth'
 const webglDescription = 'WebGLRenderingContext.getParameter'
 const canvasDescription = 'HTMLCanvasElement.getContext&#013CanvasRenderingContext2D&#013WebGLRenderingContext&#013CanvasRenderingContext2D.getImageData&#013HTMLCanvasElement.toDataURL&#013HTMLCanvasElement.toBlob'
 const clientRectsDescription = 'Element.getClientRects&#013Element.getBoundingClientRect&#013Range.getClientRects&#013Range.getBoundingClientRect'
@@ -249,11 +249,11 @@ const audioDataDescription = 'AudioBuffer.getChannelData&#013AudioBuffer.copyFro
 
 // Block Description
 const speechDescription = 'speechSynthesis.getVoices'
-const pluginsDescription = 'navigator.plugins'
-const mimeTypesDescription = 'navigator.mimeTypes'
-const gamepadsDescription = 'navigator.getGamepads'
-const batteryDescription = 'navigator.getBattery'
-const connectionDescription = 'navigator.connection'
+const pluginsDescription = 'Navigator.plugins'
+const mimeTypesDescription = 'Navigator.mimeTypes'
+const gamepadsDescription = 'Navigator.getGamepads'
+const batteryDescription = 'Navigator.getBattery'
+const connectionDescription = 'Navigator.connection'
 const webrtcDescription = 'RTCPeerConnection.createDataChannel&#013RTCPeerConnection.createOffer&#013RTCPeerConnection.setRemoteDescription'
 // Permission Description
 const canvasToDataURL = 'HTMLCanvasElement.toDataURL&#013HTMLCanvasElement.toBlob'
@@ -410,7 +410,7 @@ const view = html/* html */`
   <section id="special">
     <div class="block-section">
         <strong>Block</strong>
-        <span>Block APIs (breaks sites)</span>
+        <span>Block APIs (may break sites)</span>
         <label title="${speechDescription}"><input type="checkbox" id="speech"><span>Speech</span></label>
         <label title="${pluginsDescription}"><input type="checkbox" id="plugins"><span>Plugins</span></label>
         <label title="${mimeTypesDescription}"><input type="checkbox" id="mimetypes"><span>MimeTypes</span></label>

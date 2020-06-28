@@ -10,7 +10,7 @@ Catlike security against browser and device fingerprinting
 4. **Fur Knowledge**: self fingerprints each randomization output
 5. **No Litter**:
     - randomization is delayed to a minimum of 1 minute to avoid unusual behavior
-    - userAgent randomization is within recent browser version and consistent with the system platform
+    - userAgent randomization is within recent browser versions and consistent with the system platform
     - does not inject gibberish strings in API results
 6. **Mew Randomization**: provides up to 8 hour delay in randomization with the option to renew anytime
 7. **Kitten Settings**: interface is kept simple and easy

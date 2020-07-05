@@ -607,8 +607,6 @@
     
             function definify(struct) {
                 const redefinedProps = {}
-
-                
                 Object.keys(struct).forEach(prop => {
                     const fn = () => { watch(prop); return struct[prop] }
                     Object.defineProperties(fn, { name: { value: 'get '+prop, configurable: true } })

@@ -434,7 +434,7 @@ const listenOnMessage = (data, sender) => {
     const { notificationSettings: { notification }, warning, url, propsRead } = data
     const fingerprintScripts = data.fingerprintScripts || []
     const scriptsCaughtLen = fingerprintScripts.length
-    const notificationMessage = notification ? `${url}\n\n${Object.keys(propsRead).length}+ properties read [details in the console]` : ''
+    const notificationMessage = notification ? `${url}\n\n${Object.keys(propsRead).length}+ properties read` : ''
 
     if (notification) { console.log(propsRead) }
     if (scriptsCaughtLen) {

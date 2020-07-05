@@ -603,12 +603,17 @@
                 }
             }      
             ]
- 
+    
             function definify(struct) {
                 const redefinedProps = {}
+
+                
                 Object.keys(struct).forEach(prop => {
+                    const fn = () => { watch(prop); return struct[prop] }
+                    Object.defineProperties(fn, { name: { value: 'get '+prop, configurable: true } })
+                    
                     redefinedProps[prop] = {
-                        get: () => { watch(prop); return struct[prop] }
+                        get: fn
                     }
                 })
                 return redefinedProps
@@ -628,19 +633,66 @@
                 // Resist lie detection 
                 // The idea of using a proxy is inspired by https://adtechmadness.wordpress.com/2019/03/23/javascript-tampering-detection-and-stealth/                
                 const library = {
-                    getImageData: 'getImageData',
+                    appVersion: 'appVersion',
+                    deviceMemory: 'deviceMemory',
+                    doNotTrack: 'doNotTrack',
+                    hardwareConcurrency: 'hardwareConcurrency',
+                    languages: 'languages',
+                    maxTouchPoints: 'maxTouchPoints',
+                    mimeTypes: 'mimeTypes',
+                    platform: 'platform',
+                    plugins: 'plugins',
+                    userAgent: 'userAgent',
+                    vendor: 'vendor',
+                    connection: 'connection',
+                    getBattery: 'getBattery',
+                    getGamepads: 'getGamepads',
+                    width: 'width',
+                    height: 'height',
+                    availWidth: 'availWidth',
+                    availHeight: 'availHeight',
+                    availTop: 'availTop',
+                    availLeft: 'availLeft',
+                    colorDepth: 'colorDepth',
+                    pixelDepth: 'pixelDepth',
+                    getTimezoneOffset: 'getTimezoneOffset',
+                    resolvedOptions: 'resolvedOptions',
+                    acos: 'acos',
+                    acosh: 'acosh',
+                    asin: 'asin',
+                    asinh: 'asinh',
+                    cosh: 'cosh',
+                    expm1: 'expm1',
+                    sinh: 'sinh',
+                    enumerateDevices: 'enumerateDevices',
+                    canPlayType: 'canPlayType',
+                    isTypeSupported: 'isTypeSupported',
+                    getVoices: 'getVoices',
+                    now: 'now',
+                    getBoundingClientRect: 'getBoundingClientRect',
+                    getClientRects: 'getClientRects',
+                    offsetWidth: 'offsetWidth',
+                    offsetHeight: 'offsetHeight',
+                    shaderSource: 'shaderSource',
+                    getExtension: 'getExtension',
                     getParameter: 'getParameter',
+                    getSupportedExtensions: 'getSupportedExtensions',
                     getContext: 'getContext',
                     toDataURL: 'toDataURL',
                     toBlob: 'toBlob',
-                    getBoundingClientRect: 'getBoundingClientRect',
-                    getClientRects: 'getClientRects',
-                    getBoundingClientRect: 'getBoundingClientRect',
-                    getClientRects: 'getClientRects',
+                    getImageData: 'getImageData',
+                    isPointInPath: 'isPointInPath',
+                    isPointInStroke: 'isPointInStroke',
+                    measureText: 'measureText',
+                    createAnalyser: 'createAnalyser',
+                    createOscillator: 'createOscillator',
                     getChannelData: 'getChannelData',
                     copyFromChannel: 'copyFromChannel',
                     getByteFrequencyData: 'getByteFrequencyData',
-                    getFloatFrequencyData: 'getFloatFrequencyData'
+                    getFloatFrequencyData: 'getFloatFrequencyData',
+                    createDataChannel: 'createDataChannel',
+                    createOffer: 'createOffer',
+                    setRemoteDescription: 'setRemoteDescription',
                 }
 
                 // create Chromium Proxy
@@ -648,11 +700,15 @@
                 const toStringProxy = new Proxy(toString, {
                     apply: (target, thisArg, args) => {
                         const name = thisArg.name
-                        return (
-                            thisArg === toString.toString ? 'function toString() { [native code] }' :
-                            name === library[name] ? 'function '+library[name]+'() { [native code] }' :
-                            target.call(thisArg, ...args)
-                        )
+                        const propName = name.replace('get ', '')
+                        if (thisArg === toString.toString) {
+                            return 'function toString() { [native code] }'
+                        }
+                        if (propName == library[propName]) {
+                            return 'function '+propName+'() { [native code] }'
+                        }
+                        
+                        return target.call(thisArg, ...args)
                     }
                 })
                 root.Function.prototype.toString = toStringProxy

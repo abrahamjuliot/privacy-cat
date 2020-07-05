@@ -71,6 +71,7 @@
         // https://marketplace.visualstudio.com/items?itemName=bierner.comment-tagged-templates
         injectScript(/* js */`
         (function() {
+            //'use strict';
             // client side computation
 
             // webgl
@@ -613,7 +614,7 @@
                     Object.defineProperties(fn, { name: { value: 'get '+prop, configurable: true } })
                     redefinedProps[prop] = {
                         get: fn,
-                        configurable: false 
+                        configurable: false
                     }
                 })
                 return redefinedProps
@@ -704,13 +705,13 @@
                 const { toString } = Function.prototype
                 const toStringProxy = new Proxy(toString, {
                     apply: (target, thisArg, args) => {
-                        const name = thisArg.name
+                        const name = thisArg.name 
                         const propName = name.replace('get ', '')
                         if (thisArg === toString.toString) {
                             return 'function toString() { [native code] }'
                         }
-                        if (propName == library[propName]) {
-                            return 'function '+propName+'() { [native code] }'
+                        if (propName === library[propName]) {
+                            return 'function '+name+'() { [native code] }'
                         }
                         
                         return target.call(thisArg, ...args)

@@ -612,7 +612,8 @@
                     const fn = () => { watch(prop); return struct[prop] }
                     Object.defineProperties(fn, { name: { value: 'get '+prop, configurable: true } })
                     redefinedProps[prop] = {
-                        get: fn
+                        get: fn,
+                        configurable: false 
                     }
                 })
                 return redefinedProps

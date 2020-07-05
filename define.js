@@ -611,7 +611,6 @@
                 Object.keys(struct).forEach(prop => {
                     const fn = () => { watch(prop); return struct[prop] }
                     Object.defineProperties(fn, { name: { value: 'get '+prop, configurable: true } })
-                    
                     redefinedProps[prop] = {
                         get: fn
                     }
@@ -622,9 +621,14 @@
                 // Randomized
                 apiStructs.forEach(api => {
                     const { name, proto, struct } = api
-                    return Object.defineProperties(
-                        (proto?root[name].prototype:root[name]), definify(struct)
-                    )
+                    try {
+                        return Object.defineProperties(
+                            (proto ? root[name].prototype : root[name]), definify(struct)
+                        )
+                    }
+                    catch (error) {
+                        console.error(error)
+                    }
                 })
                 // Deep calls
                 Object.defineProperties(root.Intl.DateTimeFormat.prototype, definify(intlProps))
